@@ -513,39 +513,16 @@ function toFirebaseEmail(input){
   return input.trim().toLowerCase();
 }
 
-  if(!usuario){showErr('Ingresá un nombre de usuario.');return;}
-  if(!/^[a-z0-9._-]+$/.test(usuario)){showErr('El usuario solo puede tener letras, números, punto o guión.');return;}
-  if(pass.length<6){showErr('La contraseña debe tener al menos 6 caracteres.');return;}
-  if(pass!==pass2){showErr('Las contraseñas no coinciden.');return;}
-  showSpinner(true);
-  waitFirebase(async()=>{
-    try{
-      const email=toFirebaseEmail(usuario);
-      const {createUserWithEmailAndPassword}=window._fbFuncs;
-      const cred=await createUserWithEmailAndPassword(window._auth,email,pass);
-      // Guardar perfil del médico en Firestore
-      await fbSet(`usuarios/${cred.user.uid}`,{rol:'medico',nombre,usuario,email});
-      S.uid=cred.user.uid;S.user=cred.user;S.role='medico';
-      showSpinner(false);
-      iniciarApp();
-    }catch(err){
-      showSpinner(false);
-      const msgs={
-        'auth/email-already-in-use':'Ese usuario ya está registrado. Usá "Ingresar".',
-        'auth/invalid-email':'Nombre de usuario inválido.',
-        'auth/weak-password':'La contraseña es muy corta.'
-      };
-      const errEl=document.getElementById('reg-error');
-      errEl.textContent=msgs[err.code]||'Error: '+err.message;
-      errEl.style.display='block';
-    }
-  });
+  function toFirebaseEmail(input){
+  if(!input.includes('@')) return input.trim().toLowerCase()+'@pediapp.local';
+  return input.trim().toLowerCase();
 }
 
-// ══ MÉDICO: usuario fijo paula.salado (se crea UNA SOLA VEZ en Firebase Console)
+// ══ MÉDICO: usuario fijo paula.salado
 // ══ FAMILIAS: se crean desde la app al agregar un nuevo paciente
 
 async function doLogin(){
+
   hideAuthError();
   const rawInput=v('l-email'),pass=v('l-pass');
   if(!rawInput||!pass){showAuthError('Ingresá usuario y contraseña.');return;}
