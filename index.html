@@ -7,17 +7,11 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
 <!-- Firebase SDK -->
-<script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged }
-  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore, doc, setDoc, getDoc, collection, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot, query, where, serverTimestamp }
-  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-
-// ══════════════════════════════════════════
-// 🔥 REEMPLAZÁ ESTOS VALORES CON LOS TUYOS
-// (los encontrás en Firebase Console → Configuración del proyecto)
-// ══════════════════════════════════════════
+<!-- Firebase compat (funciona en todos los navegadores) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
 const firebaseConfig = {
   apiKey: "AIzaSyChXmzQegQ1Jd4dxxO08eh02_0jUXiIuWI",
   authDomain: "pediapp-62aa8.firebaseapp.com",
@@ -27,15 +21,30 @@ const firebaseConfig = {
   appId: "1:518582721197:web:a70596d49e5f8560cfc424"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+firebase.initializeApp(firebaseConfig);
+const _auth = firebase.auth();
+const _db = firebase.firestore();
+window._auth = _auth;
+window._db = _db;
 
-// Exponer globalmente para que el resto del código los use
-window._auth = auth;
-window._db = db;
-window._fbFuncs = { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged,
-  doc, setDoc, getDoc, collection, getDocs, addDoc, updateDoc, deleteDoc, onSnapshot, query, where, serverTimestamp };
+// Adaptar las funciones al estilo compat
+window._fbFuncs = {
+  signInWithEmailAndPassword: (auth, email, pass) => auth.signInWithEmailAndPassword(email, pass),
+  createUserWithEmailAndPassword: (auth, email, pass) => auth.createUserWithEmailAndPassword(email, pass),
+  signOut: (auth) => auth.signOut(),
+  onAuthStateChanged: (auth, cb) => auth.onAuthStateChanged(cb),
+  doc: (db, ...path) => { const p=path.join('/').split('/'); return db.collection(p.slice(0,-1).join('/')).doc(p[p.length-1]); },
+  setDoc: async (ref, data, opts) => { if(opts&&opts.merge) await ref.set(data,{merge:true}); else await ref.set(data); },
+  getDoc: async (ref) => { const s=await ref.get(); return { exists: ()=>s.exists, data: ()=>s.data(), id: s.id }; },
+  collection: (db, ...path) => db.collection(path.join('/')),
+  getDocs: async (ref) => { const s=await ref.get(); return { docs: s.docs.map(d=>({id:d.id, data:()=>d.data(), ...d.data()})) }; },
+  addDoc: async (ref, data) => { const r=await ref.add(data); return { id: r.id }; },
+  updateDoc: async (ref, data) => ref.update(data),
+  deleteDoc: async (ref) => ref.delete(),
+  query: (ref, ...constraints) => { let q=ref; constraints.forEach(c=>{ q=c(q); }); return q; },
+  where: (field, op, val) => (ref) => ref.where(field, op, val),
+  serverTimestamp: () => firebase.firestore.FieldValue.serverTimestamp(),
+};
 window._firebaseReady = true;
 window.dispatchEvent(new Event('firebase-ready'));
 </script>
@@ -479,22 +488,42 @@ function showSyncBadge(ok){const b=document.getElementById('sync-badge');b.textC
 // FIREBASE HELPERS
 // ══════════════════════════════════════════════════════
 async function fbSet(path,data){
-  const {doc,setDoc}=window._fbFuncs;
-  await setDoc(doc(window._db,...path.split('/')),data,{merge:true});
+  const parts=path.split('/');
+  let ref=window._db.collection(parts[0]);
+  for(let i=1;i<parts.length;i++){
+    if(i%2===1) ref=ref.doc(parts[i]);
+    else ref=ref.collection(parts[i]);
+  }
+  await ref.set(data,{merge:true});
 }
 async function fbGet(path){
-  const {doc,getDoc}=window._fbFuncs;
-  const snap=await getDoc(doc(window._db,...path.split('/')));
-  return snap.exists()?snap.data():null;
+  const parts=path.split('/');
+  let ref=window._db.collection(parts[0]);
+  for(let i=1;i<parts.length;i++){
+    if(i%2===1) ref=ref.doc(parts[i]);
+    else ref=ref.collection(parts[i]);
+  }
+  const snap=await ref.get();
+  return snap.exists?snap.data():null;
 }
 async function fbAdd(path,data){
-  const {collection,addDoc}=window._fbFuncs;
-  const ref=await addDoc(collection(window._db,...path.split('/')),data);
-  return ref.id;
+  const parts=path.split('/');
+  let ref=window._db.collection(parts[0]);
+  for(let i=1;i<parts.length;i++){
+    if(i%2===1) ref=ref.doc(parts[i]);
+    else ref=ref.collection(parts[i]);
+  }
+  const r=await ref.add(data);
+  return r.id;
 }
 async function fbGetCol(path){
-  const {collection,getDocs}=window._fbFuncs;
-  const snap=await getDocs(collection(window._db,...path.split('/')));
+  const parts=path.split('/');
+  let ref=window._db.collection(parts[0]);
+  for(let i=1;i<parts.length;i++){
+    if(i%2===1) ref=ref.doc(parts[i]);
+    else ref=ref.collection(parts[i]);
+  }
+  const snap=await ref.get();
   return snap.docs.map(d=>({id:d.id,...d.data()}));
 }
 async function fbDel(path){
@@ -513,16 +542,11 @@ function toFirebaseEmail(input){
   return input.trim().toLowerCase();
 }
 
-  function toFirebaseEmail(input){
-  if(!input.includes('@')) return input.trim().toLowerCase()+'@pediapp.local';
-  return input.trim().toLowerCase();
-}
 
-// ══ MÉDICO: usuario fijo paula.salado
+// ══ MÉDICO: usuario fijo paula.salado (se crea UNA SOLA VEZ en Firebase Console)
 // ══ FAMILIAS: se crean desde la app al agregar un nuevo paciente
 
 async function doLogin(){
-
   hideAuthError();
   const rawInput=v('l-email'),pass=v('l-pass');
   if(!rawInput||!pass){showAuthError('Ingresá usuario y contraseña.');return;}
@@ -530,18 +554,21 @@ async function doLogin(){
   showSpinner(true);
   waitFirebase(async()=>{
     try{
-      const {signInWithEmailAndPassword}=window._fbFuncs;
-      const cred=await signInWithEmailAndPassword(window._auth,email,pass);
-      // Determinar rol leyendo Firestore
-      const perfDoc=await fbGet(`usuarios/${cred.user.uid}`);
+      const cred=await window._auth.signInWithEmailAndPassword(email,pass);
       S.uid=cred.user.uid;
       S.user=cred.user;
-      S.role=(perfDoc?.rol)||S.role; // rol guardado en /usuarios/uid
+      // Médico fijo en código: evita depender de /usuarios/UID para poder ingresar.
+      if((cred.user.email||'').toLowerCase()==='paula.salado@pediapp.local'){
+        S.role='medico';
+      }else{
+        const perfDoc=await fbGet(`usuarios/${cred.user.uid}`).catch(()=>null);
+        S.role=perfDoc?.rol||'familia';
+      }
       showSpinner(false);
       iniciarApp();
     }catch(err){
       showSpinner(false);
-      const msgs={'auth/user-not-found':'Usuario no encontrado.','auth/wrong-password':'Contraseña incorrecta.','auth/invalid-credential':'Email o contraseña incorrectos.','auth/too-many-requests':'Demasiados intentos. Esperá un momento.'};
+      const msgs={'auth/user-not-found':'Usuario no encontrado.','auth/wrong-password':'Contraseña incorrecta.','auth/invalid-credential':'Email o contraseña incorrectos.','auth/too-many-requests':'Demasiados intentos. Esperá un momento.','auth/unauthorized-domain':'Dominio no autorizado en Firebase.'};
       showAuthError(msgs[err.code]||'Error: '+err.message);
     }
   });
@@ -550,8 +577,7 @@ async function doLogin(){
 async function doLogout(){
   showSpinner(true);
   waitFirebase(async()=>{
-    const {signOut}=window._fbFuncs;
-    await signOut(window._auth);
+    await window._auth.signOut();
     showSpinner(false);
     document.getElementById('app').style.display='none';
     document.getElementById('auth-screen').style.display='flex';
@@ -595,9 +621,7 @@ async function cargarListaPacientes(){
   showSpinner(true);
   try{
     // Médico: leer todos los pacientes donde medicoId=S.uid
-    const {collection,getDocs,query,where}=window._fbFuncs;
-    const q=query(collection(window._db,'pacientes'),where('medicoId','==',S.uid));
-    const snap=await getDocs(q);
+    const snap=await window._db.collection('pacientes').where('medicoId','==',S.uid).get();
     pacientes=snap.docs.map(d=>({firestoreId:d.id,...d.data(),antro:[],hitos:[],estudios:[],ic:[],sintomas:[]}));
   }catch(e){console.error(e);}
   showSpinner(false);
@@ -695,9 +719,7 @@ async function cargarPacienteFamilia(){
   showSpinner(true);
   try{
     // Buscar el paciente donde familiaUid=S.uid
-    const {collection,getDocs,query,where}=window._fbFuncs;
-    const q=query(collection(window._db,'pacientes'),where('familiaUid','==',S.uid));
-    const snap=await getDocs(q);
+    const snap=await window._db.collection('pacientes').where('familiaUid','==',S.uid).get();
     if(snap.empty){showModal('Sin paciente vinculado','Tu cuenta aún no está vinculada a ningún paciente. Consultá con tu médico.');showSpinner(false);return;}
     const d=snap.docs[0];
     S.pacienteId=d.id;
@@ -729,15 +751,13 @@ async function confirmarNuevoPaciente(){
       let familiaUid=null;
       // Crear usuario familia en Firebase Auth si tiene usuario/email
       if(email&&pass){
-        const firebaseEmail=toFirebaseEmail(email); // convierte usuario a email interno
-        const {createUserWithEmailAndPassword}=window._fbFuncs;
-        const famCred=await createUserWithEmailAndPassword(window._auth,firebaseEmail,pass);
+        const firebaseEmail=toFirebaseEmail(email);
+        const famCred=await window._auth.createUserWithEmailAndPassword(firebaseEmail,pass);
         familiaUid=famCred.user.uid;
         // Guardar rol familia
         await fbSet(`usuarios/${familiaUid}`,{rol:'familia',email:firebaseEmail,usuario:email});
         // Re-login como médico (crear usuario familia desloguea al médico)
-        const {signInWithEmailAndPassword}=window._fbFuncs;
-        await signInWithEmailAndPassword(window._auth,toFirebaseEmail(v('l-email')||S.user.email),v('l-pass')||'');
+        await window._auth.signInWithEmailAndPassword(toFirebaseEmail(v('l-email')||S.user.email),v('l-pass')||'');
         // (en producción guardar token o usar Admin SDK)
       }
       // Crear paciente en Firestore
@@ -1111,9 +1131,17 @@ document.addEventListener('DOMContentLoaded',function(){
 
   // Verificar si hay sesión activa
   waitFirebase(()=>{
-    const {onAuthStateChanged}=window._fbFuncs;
-    onAuthStateChanged(window._auth,async(user)=>{
-      if(user&&!S.uid){S.uid=user.uid;S.user=user;const perfDoc=await fbGet(`usuarios/${user.uid}`);S.role=perfDoc?.rol||S.role;iniciarApp();}
+    window._auth.onAuthStateChanged(async(user)=>{
+      if(user&&!S.uid){
+        S.uid=user.uid;S.user=user;
+        if((user.email||'').toLowerCase()==='paula.salado@pediapp.local'){
+          S.role='medico';
+        }else{
+          const perfDoc=await fbGet(`usuarios/${user.uid}`).catch(()=>null);
+          S.role=perfDoc?.rol||'familia';
+        }
+        iniciarApp();
+      }
     });
   });
 });
