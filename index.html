@@ -7,46 +7,45 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
 <!-- Firebase SDK -->
-<!-- Firebase compat (funciona en todos los navegadores) -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<!-- Firebase carga dinámica garantizada -->
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyChXmzQegQ1Jd4dxxO08eh02_0jUXiIuWI",
-  authDomain: "pediapp-62aa8.firebaseapp.com",
-  projectId: "pediapp-62aa8",
-  storageBucket: "pediapp-62aa8.firebasestorage.app",
-  messagingSenderId: "518582721197",
-  appId: "1:518582721197:web:a70596d49e5f8560cfc424"
-};
-
-firebase.initializeApp(firebaseConfig);
-const _auth = firebase.auth();
-const _db = firebase.firestore();
-window._auth = _auth;
-window._db = _db;
-
-// Adaptar las funciones al estilo compat
-window._fbFuncs = {
-  signInWithEmailAndPassword: (auth, email, pass) => auth.signInWithEmailAndPassword(email, pass),
-  createUserWithEmailAndPassword: (auth, email, pass) => auth.createUserWithEmailAndPassword(email, pass),
-  signOut: (auth) => auth.signOut(),
-  onAuthStateChanged: (auth, cb) => auth.onAuthStateChanged(cb),
-  doc: (db, ...path) => { const p=path.join('/').split('/'); return db.collection(p.slice(0,-1).join('/')).doc(p[p.length-1]); },
-  setDoc: async (ref, data, opts) => { if(opts&&opts.merge) await ref.set(data,{merge:true}); else await ref.set(data); },
-  getDoc: async (ref) => { const s=await ref.get(); return { exists: ()=>s.exists, data: ()=>s.data(), id: s.id }; },
-  collection: (db, ...path) => db.collection(path.join('/')),
-  getDocs: async (ref) => { const s=await ref.get(); return { docs: s.docs.map(d=>({id:d.id, data:()=>d.data(), ...d.data()})) }; },
-  addDoc: async (ref, data) => { const r=await ref.add(data); return { id: r.id }; },
-  updateDoc: async (ref, data) => ref.update(data),
-  deleteDoc: async (ref) => ref.delete(),
-  query: (ref, ...constraints) => { let q=ref; constraints.forEach(c=>{ q=c(q); }); return q; },
-  where: (field, op, val) => (ref) => ref.where(field, op, val),
-  serverTimestamp: () => firebase.firestore.FieldValue.serverTimestamp(),
-};
-window._firebaseReady = true;
-window.dispatchEvent(new Event('firebase-ready'));
+function loadScript(src, cb){
+  var s=document.createElement('script');
+  s.src=src;
+  s.onload=cb;
+  s.onerror=function(){console.error('No se pudo cargar:',src);cb();};
+  document.head.appendChild(s);
+}
+window._firebaseReady=false;
+window._firebaseError=false;
+document.addEventListener('DOMContentLoaded',function(){
+  loadScript('https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js',function(){
+    loadScript('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js',function(){
+      loadScript('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js',function(){
+        try{
+          var cfg={
+            apiKey:"AIzaSyChXmzQegQ1Jd4dxxO08eh02_0jUXiIuWI",
+            authDomain:"pediapp-62aa8.firebaseapp.com",
+            projectId:"pediapp-62aa8",
+            storageBucket:"pediapp-62aa8.firebasestorage.app",
+            messagingSenderId:"518582721197",
+            appId:"1:518582721197:web:a70596d49e5f8560cfc424"
+          };
+          if(!firebase.apps.length)firebase.initializeApp(cfg);
+          window._auth=firebase.auth();
+          window._db=firebase.firestore();
+          window._firebaseReady=true;
+          window.dispatchEvent(new Event('firebase-ready'));
+        }catch(e){
+          window._firebaseError=true;
+          console.error('Firebase init error:',e);
+          document.getElementById('auth-error').textContent='Error de conexión. Verificá tu internet.';
+          document.getElementById('auth-error').style.display='block';
+        }
+      });
+    });
+  });
+});
 </script>
 
 <style>
@@ -467,8 +466,9 @@ let pacienteActual=null;
 // ESPERAR FIREBASE
 // ══════════════════════════════════════════════════════
 function waitFirebase(cb){
-  if(window._firebaseReady)cb();
-  else window.addEventListener('firebase-ready',cb,{once:true});
+  if(window._firebaseReady){cb();return;}
+  if(window._firebaseError){showModal('Error','No se pudo conectar con Firebase. Verificá tu conexión a internet.');return;}
+  window.addEventListener('firebase-ready',function(){cb();},{once:true});
 }
 
 // ══════════════════════════════════════════════════════
@@ -543,6 +543,7 @@ function toFirebaseEmail(input){
 }
 
 
+
 // ══ MÉDICO: usuario fijo paula.salado (se crea UNA SOLA VEZ en Firebase Console)
 // ══ FAMILIAS: se crean desde la app al agregar un nuevo paciente
 
@@ -555,20 +556,16 @@ async function doLogin(){
   waitFirebase(async()=>{
     try{
       const cred=await window._auth.signInWithEmailAndPassword(email,pass);
+      // Determinar rol leyendo Firestore
+      const perfDoc=await fbGet(`usuarios/${cred.user.uid}`);
       S.uid=cred.user.uid;
       S.user=cred.user;
-      // Médico fijo en código: evita depender de /usuarios/UID para poder ingresar.
-      if((cred.user.email||'').toLowerCase()==='paula.salado@pediapp.local'){
-        S.role='medico';
-      }else{
-        const perfDoc=await fbGet(`usuarios/${cred.user.uid}`).catch(()=>null);
-        S.role=perfDoc?.rol||'familia';
-      }
+      S.role=(perfDoc?.rol)||S.role; // rol guardado en /usuarios/uid
       showSpinner(false);
       iniciarApp();
     }catch(err){
       showSpinner(false);
-      const msgs={'auth/user-not-found':'Usuario no encontrado.','auth/wrong-password':'Contraseña incorrecta.','auth/invalid-credential':'Email o contraseña incorrectos.','auth/too-many-requests':'Demasiados intentos. Esperá un momento.','auth/unauthorized-domain':'Dominio no autorizado en Firebase.'};
+      const msgs={'auth/user-not-found':'Usuario no encontrado.','auth/wrong-password':'Contraseña incorrecta.','auth/invalid-credential':'Email o contraseña incorrectos.','auth/too-many-requests':'Demasiados intentos. Esperá un momento.'};
       showAuthError(msgs[err.code]||'Error: '+err.message);
     }
   });
@@ -602,12 +599,14 @@ async function iniciarApp(){
   const isMed=S.role==='medico';
   document.querySelectorAll('.medico-only').forEach(el=>el.classList.toggle('sec-hidden',!isMed));
   if(!isMed){
+    // FAMILIA: va directo a su paciente, sin lista
     document.getElementById('enf-medico-ctrl').classList.add('sec-hidden');
     document.getElementById('pac-screen').style.display='none';
     document.getElementById('main-clinico').classList.add('visible');
-    // Familia: cargar SU paciente vinculado
     await cargarPacienteFamilia();
   } else {
+    // MÉDICO: ver lista de pacientes
+    document.getElementById('enf-medico-ctrl').classList.remove('sec-hidden');
     await cargarListaPacientes();
     mostrarListaPacientes();
   }
@@ -702,13 +701,26 @@ async function abrirPaciente(firestoreId){
   renderAntroTable();renderHitos();renderEstudios();renderIC();renderSint();
   calcPerfil();
   // Enfermedad
+  // Enfermedad actual
   document.getElementById('enf-toggle').checked=S.enfActiva;
   document.getElementById('enf-estado-label').textContent=S.enfActiva?'Activo':'Inactivo';
   document.getElementById('enf-dx-field').style.display=S.enfActiva?'':'none';
   document.getElementById('enf-sint-card').style.display=S.enfActiva?'':'none';
   document.getElementById('enf-urg-card').style.display=S.enfActiva?'':'none';
+  // Médico: siempre ve el control de enfermedad
+  const mCtrl=document.getElementById('enf-medico-ctrl');
+  if(mCtrl){
+    if(S.role==='medico') mCtrl.classList.remove('sec-hidden');
+    else mCtrl.classList.add('sec-hidden');
+  }
+  // Familia: mostrar pestaña enfermedad solo si está activa
   const sbEnf=document.getElementById('sb-enfermedad');
-  if(sbEnf&&S.role!=='medico')sbEnf.style.display=S.enfActiva?'':'none';
+  if(sbEnf) sbEnf.style.display=(S.role==='medico'||S.enfActiva)?'':'none';
+  // Médico: mostrar enf-activo, ocultar lock
+  if(S.role==='medico'){
+    document.getElementById('enf-lock').classList.add('sec-hidden');
+    document.getElementById('enf-activo').style.display='';
+  }
   nav('perfil');
 }
 
@@ -1080,9 +1092,23 @@ function prefillDates(){const t=new Date().toISOString().split('T')[0];['a-fecha
 // INIT
 // ══════════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded',function(){
+  // Firebase inicializado en el script de carga dinámica (ver head)
   // Auth
-  document.getElementById('rb-m').addEventListener('click',function(){document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');S.role='medico';});
-  document.getElementById('rb-f').addEventListener('click',function(){document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');S.role='familia';});
+  document.getElementById('rb-m').addEventListener('click',function(){
+    document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active'));
+    this.classList.add('active');S.role='medico';
+    document.getElementById('l-email').value='paula.salado';
+    document.getElementById('l-pass').value='971011';
+  });
+  document.getElementById('rb-f').addEventListener('click',function(){
+    document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active'));
+    this.classList.add('active');S.role='familia';
+    document.getElementById('l-email').value='';
+    document.getElementById('l-pass').value='';
+  });
+  // Prellenar credenciales del médico por defecto
+  document.getElementById('l-email').value='paula.salado';
+  document.getElementById('l-pass').value='971011';
   document.getElementById('btn-login').addEventListener('click',doLogin);
   document.getElementById('l-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
   document.getElementById('btn-logout').addEventListener('click',doLogout);
@@ -1132,16 +1158,7 @@ document.addEventListener('DOMContentLoaded',function(){
   // Verificar si hay sesión activa
   waitFirebase(()=>{
     window._auth.onAuthStateChanged(async(user)=>{
-      if(user&&!S.uid){
-        S.uid=user.uid;S.user=user;
-        if((user.email||'').toLowerCase()==='paula.salado@pediapp.local'){
-          S.role='medico';
-        }else{
-          const perfDoc=await fbGet(`usuarios/${user.uid}`).catch(()=>null);
-          S.role=perfDoc?.rol||'familia';
-        }
-        iniciarApp();
-      }
+      if(user&&!S.uid){S.uid=user.uid;S.user=user;const perfDoc=await fbGet(`usuarios/${user.uid}`);S.role=perfDoc?.rol||S.role;iniciarApp();}
     });
   });
 });
