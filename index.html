@@ -4,50 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PediApp</title>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-
-<!-- Firebase SDK -->
-<!-- Firebase carga dinámica garantizada -->
-<script>
-function loadScript(src, cb){
-  var s=document.createElement('script');
-  s.src=src;
-  s.onload=cb;
-  s.onerror=function(){console.error('No se pudo cargar:',src);cb();};
-  document.head.appendChild(s);
-}
-window._firebaseReady=false;
-window._firebaseError=false;
-document.addEventListener('DOMContentLoaded',function(){
-  loadScript('https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js',function(){
-    loadScript('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js',function(){
-      loadScript('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js',function(){
-        try{
-          var cfg={
-            apiKey:"AIzaSyChXmzQegQ1Jd4dxxO08eh02_0jUXiIuWI",
-            authDomain:"pediapp-62aa8.firebaseapp.com",
-            projectId:"pediapp-62aa8",
-            storageBucket:"pediapp-62aa8.firebasestorage.app",
-            messagingSenderId:"518582721197",
-            appId:"1:518582721197:web:a70596d49e5f8560cfc424"
-          };
-          if(!firebase.apps.length)firebase.initializeApp(cfg);
-          window._auth=firebase.auth();
-          window._db=firebase.firestore();
-          window._firebaseReady=true;
-          window.dispatchEvent(new Event('firebase-ready'));
-        }catch(e){
-          window._firebaseError=true;
-          console.error('Firebase init error:',e);
-          document.getElementById('auth-error').textContent='Error de conexión. Verificá tu internet.';
-          document.getElementById('auth-error').style.display='block';
-        }
-      });
-    });
-  });
-});
-</script>
-
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -63,68 +21,48 @@ document.addEventListener('DOMContentLoaded',function(){
   --r:10px;--r-sm:6px;--sw:215px;
 }
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh}
-
-/* ── AUTH ── */
+/* AUTH */
 #auth-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:2rem;background:linear-gradient(135deg,#fffde7 0%,#f0faf6 100%)}
 .auth-wrap{max-width:400px;width:100%}
-.auth-card{background:var(--surface);border:0.5px solid var(--border);border-radius:16px;padding:2rem 2.25rem 2.25rem;text-align:center;border-top:3px solid var(--yellow)}
-.auth-title{font-size:22px;font-weight:700;color:var(--teal-d);margin-bottom:.15rem}
+
+.auth-card{background:var(--surface);border:0.5px solid var(--border);border-radius:16px;padding:1.75rem 2.25rem 2.25rem;text-align:center;border-top:3px solid var(--yellow)}
+.auth-title{font-size:20px;font-weight:700;color:var(--teal-d);margin-bottom:.15rem}
 .auth-sub{color:var(--muted);font-size:13px;margin-bottom:1.5rem}
 .role-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.25rem}
-.role-btn{padding:.8rem;border:0.5px solid var(--border);border-radius:var(--r);cursor:pointer;background:var(--surface);font-size:14px;font-weight:500;display:flex;flex-direction:column;align-items:center;gap:6px;transition:all .15s}
+.role-btn{padding:.8rem;border:0.5px solid var(--border);border-radius:var(--r);cursor:pointer;background:var(--surface);font-size:13px;font-weight:500;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all .15s}
+.role-btn i{font-size:22px;color:var(--teal)}
 .role-btn.active{border-color:var(--teal);background:var(--teal-l)}
 .fld{display:flex;flex-direction:column;gap:4px;margin-bottom:.75rem;text-align:left}
 .lbl{font-size:12px;color:var(--muted);font-weight:500}
 input,select,textarea{width:100%;padding:.5rem .75rem;border:0.5px solid var(--border);border-radius:var(--r-sm);font-size:13px;background:var(--surface);color:var(--text);outline:none;font-family:inherit}
 input:focus,select:focus,textarea:focus{border-color:var(--teal)}
 textarea{resize:vertical;min-height:60px}
-.btn-login{background:var(--teal);color:#fff;border:none;border-radius:var(--r-sm);padding:.75rem;font-size:14px;font-weight:500;cursor:pointer;width:100%}
+.btn-login{background:var(--teal);color:#fff;border:none;border-radius:var(--r-sm);padding:.75rem;font-size:14px;font-weight:500;cursor:pointer;width:100%;margin-top:.25rem}
 .btn-login:hover{background:var(--teal-d)}
-.auth-error{background:var(--red-l);color:var(--red-d);border-radius:var(--r-sm);padding:.6rem .85rem;font-size:13px;margin-bottom:.75rem;display:none}
-
-/* ── SPINNER ── */
-.spinner-overlay{display:none;position:fixed;inset:0;background:rgba(255,255,255,.7);z-index:999;align-items:center;justify-content:center;flex-direction:column;gap:.75rem}
-.spinner-overlay.show{display:flex}
-.spinner{width:36px;height:36px;border:3px solid var(--teal-l);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* ── APP ── */
+/* APP */
 #app{display:none;flex-direction:column;min-height:100vh}
 .topbar{height:50px;background:var(--surface);border-bottom:2px solid var(--yellow);display:flex;align-items:center;padding:0 1.25rem;gap:.75rem;position:sticky;top:0;z-index:100}
 .tb-logo{font-weight:700;font-size:15px;color:var(--teal-d);display:flex;align-items:center;gap:6px}
+.tb-logo i{font-size:20px;color:var(--teal)}
 .tb-right{margin-left:auto;display:flex;align-items:center;gap:.75rem}
 .avatar{width:28px;height:28px;border-radius:50%;background:var(--teal-l);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:11px;color:var(--teal-d)}
-.tb-name{font-size:13px;color:var(--muted);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tb-name{font-size:13px;color:var(--muted)}
 .btn-sm-out{background:none;border:0.5px solid var(--border);border-radius:var(--r-sm);padding:3px 9px;font-size:12px;cursor:pointer;color:var(--muted)}
-#btn-volver{display:none;align-items:center;gap:5px;padding:4px 12px;border:0.5px solid var(--border);border-radius:var(--r-sm);background:var(--surface);cursor:pointer;font-size:13px;color:var(--muted);font-weight:500}
-#tb-pac-nombre{font-size:13px;font-weight:600;color:var(--teal-d);display:none;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#tb-pac-nombre.visible{display:block}
-
-/* ── PANTALLA PACIENTES ── */
-#pac-screen{display:none;flex-direction:column;background:var(--bg);min-height:calc(100vh - 50px)}
-#pac-screen.visible{display:flex}
-.pac-screen-body{flex:1;padding:1.5rem;max-width:680px;width:100%;margin:0 auto}
-.pac-item{display:flex;align-items:center;gap:.85rem;padding:1rem 1.1rem;border:0.5px solid var(--border);border-radius:var(--r);margin-bottom:.5rem;cursor:pointer;background:var(--surface);transition:all .1s}
-.pac-item:hover{background:var(--yellow-l);border-color:var(--yellow)}
-.pac-avatar{width:46px;height:46px;border-radius:50%;background:var(--teal-l);color:var(--teal-d);font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-
-/* ── MAIN + SIDEBAR ── */
 .main{display:flex;flex:1}
-#main-clinico{display:none;flex:1;overflow:hidden}
-#main-clinico.visible{display:flex}
 .sidebar{width:var(--sw);background:var(--surface);border-right:0.5px solid var(--border);padding:.75rem 0;position:sticky;top:50px;height:calc(100vh - 50px);overflow-y:auto;flex-shrink:0}
 .sb-sec{padding:.5rem .75rem .25rem;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-top:.5rem}
 .sb-item{display:flex;align-items:center;gap:8px;padding:.5rem .85rem;border-radius:var(--r-sm);cursor:pointer;font-size:13px;color:var(--muted);margin:1px .45rem;transition:all .1s}
+.sb-item i{font-size:16px;flex-shrink:0}
 .sb-item:hover{background:var(--yellow-l);color:var(--text)}
 .sb-item.active{background:var(--teal-l);color:var(--teal-d);font-weight:500}
-.content{flex:1;padding:1.25rem 1.5rem;overflow-y:auto}
-
-/* ── COMPONENTES ── */
+.content{flex:1;padding:1.25rem 1.5rem;max-width:880px;overflow-y:auto}
 .sec-hidden{display:none!important}
 .page-title{font-size:19px;font-weight:600;margin-bottom:.15rem;display:flex;align-items:center;gap:8px}
+.page-title i{color:var(--teal);font-size:20px}
 .page-sub{font-size:13px;color:var(--muted);margin-bottom:1.25rem}
 .card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r);padding:1.1rem 1.25rem;margin-bottom:.85rem}
-.card-title{font-size:13px;font-weight:600;margin-bottom:.85rem;display:flex;align-items:center;gap:6px;color:var(--text)}
+.card-title{font-size:13px;font-weight:600;margin-bottom:.85rem;display:flex;align-items:center;gap:6px}
+.card-title i{font-size:17px;color:var(--teal)}
 .fr{display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-bottom:.65rem}
 .fr3{grid-template-columns:1fr 1fr 1fr}
 .fr1{grid-template-columns:1fr}
@@ -133,6 +71,7 @@ textarea{resize:vertical;min-height:60px}
 .btn-teal{background:var(--teal);color:#fff;border-color:transparent}
 .btn-teal:hover{background:var(--teal-d)}
 .btn-yellow{background:var(--yellow);color:#5a4a00;border-color:transparent;font-weight:600}
+.btn-yellow:hover{background:var(--yellow-d);color:#fff}
 .tag{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
 .tg{background:var(--green-l);color:var(--green-d)}
 .tr{background:var(--red-l);color:var(--red-d)}
@@ -140,8 +79,9 @@ textarea{resize:vertical;min-height:60px}
 .tb2{background:var(--blue-l);color:var(--blue-d)}
 .tgr{background:var(--gray-l);color:var(--gray-600)}
 .tp{background:var(--purple-l);color:var(--purple-d)}
+.ty{background:var(--yellow-l);color:var(--yellow-d)}
 .empty{text-align:center;padding:2.5rem 1rem;color:var(--muted)}
-.empty-icon{font-size:36px;display:block;margin-bottom:.6rem;opacity:.5}
+.empty i{font-size:36px;display:block;margin-bottom:.6rem;opacity:.3}
 .toggle-row{display:flex;align-items:center;justify-content:space-between;padding:.55rem 0;border-bottom:0.5px solid var(--border)}
 .toggle-row:last-child{border-bottom:none}
 .tgl{position:relative;width:34px;height:18px;flex-shrink:0}
@@ -155,68 +95,109 @@ table.dt{width:100%;border-collapse:collapse;font-size:12px}
 table.dt th{text-align:left;padding:.45rem .65rem;border-bottom:0.5px solid var(--border);font-weight:600;font-size:11px;color:var(--muted);white-space:nowrap;background:var(--yellow-ll)}
 table.dt td{padding:.45rem .65rem;border-bottom:0.5px solid var(--border);vertical-align:middle}
 table.dt tr:last-child td{border-bottom:none}
-.chart-wrap{position:relative;height:240px;margin-top:.5rem}
+.hito-item{display:flex;align-items:flex-start;gap:.65rem;padding:.55rem 0;border-bottom:0.5px solid var(--border)}
+.hito-item:last-child{border-bottom:none}
+.hdot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.dg{background:var(--green)}.da{background:var(--amber)}.db{background:var(--blue)}
 .iodi-tabs{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.85rem}
 .iodi-tab{padding:.3rem .75rem;border-radius:20px;border:0.5px solid var(--border);background:var(--surface);font-size:12px;cursor:pointer;color:var(--muted)}
 .iodi-tab.active{background:var(--teal);color:#fff;border-color:transparent}
 .iodi-sec{display:none}
 .iodi-sec.vis{display:block}
-.chk-group{display:flex;flex-direction:column;gap:.45rem}
-.chk-opt{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px}
-.hito-item{display:flex;align-items:flex-start;gap:.65rem;padding:.55rem 0;border-bottom:0.5px solid var(--border)}
-.hito-item:last-child{border-bottom:none}
-.hdot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:4px}
-.dg{background:var(--green)}.da{background:var(--amber)}.db{background:var(--blue)}
-.urg-card{background:#fff3cd;border:2px solid #ffc107;border-radius:var(--r);padding:1rem 1.25rem;margin-bottom:1rem}
-.urg-title{font-weight:700;font-size:14px;color:#7a4f00;margin-bottom:.35rem}
-.enf-lock{background:var(--yellow-l);border:0.5px solid var(--yellow);border-radius:var(--r);padding:2rem;text-align:center;color:var(--muted)}
-.sint-item{border:0.5px solid var(--border);border-radius:var(--r-sm);margin-bottom:.5rem;overflow:hidden}
-.sint-header{display:flex;align-items:center;gap:.65rem;padding:.6rem .85rem;cursor:pointer;background:var(--surface);transition:background .1s}
-.sint-header:hover{background:var(--yellow-l)}
-.sint-header input[type=checkbox]{width:16px;height:16px;flex-shrink:0;cursor:pointer}
-.sint-label{flex:1;font-size:13px}
-.sint-urgente{font-size:10px;padding:2px 7px;border-radius:20px;background:var(--red-l);color:var(--red-d);font-weight:600}
-.sint-detail{display:none;padding:.65rem .85rem;background:var(--yellow-ll);border-top:0.5px solid var(--border)}
-.sint-detail.open{display:block}
-.sint-detail label{font-size:12px;color:var(--muted);display:block;margin-bottom:3px;margin-top:.5rem}
-.sint-detail label:first-child{margin-top:0}
-.sint-detail select,.sint-detail input{font-size:12px;padding:.35rem .6rem}
-/* Modal */
+.chart-wrap{position:relative;height:240px;margin-top:.5rem}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;align-items:center;justify-content:center;padding:1rem}
 .modal-overlay.open{display:flex}
 .modal{background:var(--surface);border-radius:var(--r);padding:1.4rem;width:100%;max-width:500px;max-height:90vh;overflow-y:auto}
 .modal-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
 .modal-title{font-size:15px;font-weight:600}
-.form-2col{display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-bottom:.65rem}
-@media(max-width:480px){.form-2col{grid-template-columns:1fr}}
-/* sync badge */
-.sync-badge{font-size:11px;padding:2px 8px;border-radius:20px;background:var(--teal-l);color:var(--teal-d);display:none}
-.sync-badge.show{display:inline-flex;align-items:center;gap:4px}
-.sync-badge.error{background:var(--red-l);color:var(--red-d)}
-/* SAP lookup safe labels */
-svg.ic-sm{width:13px;height:13px;vertical-align:-2px;color:var(--muted)}
-@media print{.sidebar,.topbar,.btn-yellow,.no-print{display:none!important}body{background:#fff}.content{padding:.5rem}.chart-wrap{height:200px}}
+/* ENFERMEDAD */
+.enf-lock{background:var(--yellow-l);border:0.5px solid var(--yellow);border-radius:var(--r);padding:2rem;text-align:center;color:var(--muted)}
+.enf-lock i{font-size:36px;display:block;margin-bottom:.75rem;color:var(--yellow);opacity:.7}
+.urg-card{background:#fff3cd;border:2px solid #ffc107;border-radius:var(--r);padding:1rem 1.25rem;margin-bottom:1rem}
+.urg-title{font-weight:700;font-size:14px;color:#7a4f00;margin-bottom:.35rem;display:flex;align-items:center;gap:6px}
+.urg-nums{display:flex;gap:1rem;flex-wrap:wrap;font-size:14px;font-weight:700;color:#7a4f00}
+/* SÍNTOMAS con detalle */
+.sint-item{border:0.5px solid var(--border);border-radius:var(--r-sm);margin-bottom:.5rem;overflow:hidden}
+.sint-header{display:flex;align-items:center;gap:.65rem;padding:.6rem .85rem;cursor:pointer;background:var(--surface);transition:background .1s}
+.sint-header:hover{background:var(--yellow-l)}
+.sint-header input[type=checkbox]{width:16px;height:16px;flex-shrink:0;cursor:pointer}
+.sint-label{flex:1;font-size:13px}
+.sint-urgente{font-size:10px;padding:2px 7px;border-radius:20px;background:var(--red-l);color:var(--red-d);font-weight:600;flex-shrink:0}
+.sint-detail{display:none;padding:.65rem .85rem;background:var(--yellow-ll);border-top:0.5px solid var(--border)}
+.sint-detail.open{display:block}
+.sint-detail label{font-size:12px;color:var(--muted);display:block;margin-bottom:3px;margin-top:.5rem}
+.sint-detail label:first-child{margin-top:0}
+.sint-detail select,.sint-detail input{font-size:12px;padding:.35rem .6rem}
+.pc-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+/* PDF print */
+@media print{
+  .sidebar,.topbar,.btn-yellow,.no-print{display:none!important}
+  body{background:#fff}
+  .content{padding:.5rem}
+  .card{border:1px solid #ccc;page-break-inside:avoid}
+  .chart-wrap{height:200px}
+}
+
+  .card-title > svg{width:17px;height:17px;color:var(--teal);vertical-align:-3px;flex-shrink:0}
+  .page-title > svg{width:20px;height:20px;color:var(--teal);vertical-align:-3px}
+  .sb-item > svg{width:16px;height:16px;vertical-align:-2px;flex-shrink:0}
+  .btn > svg{width:14px;height:14px;vertical-align:-2px}
+  .tag > svg{width:11px;height:11px;vertical-align:-1px}
+  .tb-logo > svg{width:20px;height:20px;color:var(--teal);vertical-align:-3px}
+  .role-btn > svg{width:22px;height:22px;color:var(--teal)}
+  .empty > svg{width:36px;height:36px;display:block;margin:0 auto .6rem;opacity:.3}
+  .urg-title > svg{width:17px;height:17px;vertical-align:-3px}
+  .enf-lock > svg{width:40px;height:40px;display:block;margin:0 auto .75rem;color:var(--amber);opacity:.6}
+  .sint-header svg{width:13px;height:13px;color:var(--muted);margin-left:4px}
+  svg.ic-sm{width:13px;height:13px;vertical-align:-2px;color:var(--muted)}
+  svg.ic-warn{width:14px;height:14px;vertical-align:-2px;color:var(--red-d)}
+  #pac-screen{display:none;flex-direction:column;background:var(--bg)}
+  #main-clinico{display:none}
+  #btn-volver{display:none;align-items:center;gap:5px;padding:4px 12px;border:0.5px solid var(--border);border-radius:var(--r-sm);background:var(--surface);cursor:pointer;font-size:13px;color:var(--muted);font-weight:500}
+  #btn-volver.visible{display:flex}
+  #tb-pac-nombre{font-size:13px;font-weight:600;color:var(--teal-d);display:none;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #tb-pac-nombre.visible{display:block}
+  .form-2col{display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-bottom:.65rem}
+  @media(max-width:480px){.form-2col{grid-template-columns:1fr}}
+
+  .pac-item{display:flex;align-items:center;gap:.85rem;padding:.9rem 1rem;border:0.5px solid var(--border);border-radius:var(--r);margin-bottom:.5rem;cursor:pointer;background:var(--surface);transition:all .1s}
+  .pac-item:hover{background:var(--yellow-l);border-color:var(--yellow)}
+  .pac-active{border-color:var(--teal)!important;background:var(--teal-l)!important}
+  .pac-avatar{width:42px;height:42px;border-radius:50%;background:var(--teal-l);color:var(--teal-d);font-weight:700;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  /* Pantalla lista pacientes fullwidth */
+  #pac-screen{display:none;flex-direction:column;min-height:100vh;background:var(--bg)}
+  #pac-screen.visible{display:flex}
+  .pac-screen-header{height:50px;background:var(--surface);border-bottom:2px solid var(--yellow);display:flex;align-items:center;padding:0 1.25rem;gap:.75rem}
+  .pac-screen-body{flex:1;padding:1.5rem;max-width:700px;width:100%;margin:0 auto}
+  /* Sidebar oculto por defecto para médico hasta entrar a paciente */
+  .sidebar.hidden-med{display:none}
+  /* Botón volver en topbar */
+  #btn-volver{display:none;align-items:center;gap:5px;padding:4px 12px;border:0.5px solid var(--border);border-radius:var(--r-sm);background:var(--surface);cursor:pointer;font-size:13px;color:var(--muted)}
+  #btn-volver.visible{display:flex}
+  #tb-pac-nombre{font-size:13px;font-weight:500;color:var(--teal-d);display:none}
+  #tb-pac-nombre.visible{display:block}
+  /* Modal nuevo paciente */
+  .form-2col{display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-bottom:.65rem}
+  @media(max-width:480px){.form-2col{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
-<!-- SPINNER -->
-<div class="spinner-overlay" id="spinner"><div class="spinner"></div><span style="font-size:13px;color:var(--muted)">Cargando...</span></div>
-
 <!-- AUTH -->
 <div id="auth-screen">
   <div class="auth-wrap">
+    
     <div class="auth-card">
-      <div class="auth-title">🩺 PediApp</div>
+      <div class="auth-title"><span style="font-size:20px">🩺</span> PediApp</div>
       <div class="auth-sub">Libreta pediátrica inteligente</div>
       <div class="role-btns">
-        <div class="role-btn active" id="rb-m">🩺<span>Médico</span></div>
-        <div class="role-btn" id="rb-f">💙<span>Familia</span></div>
+        <div class="role-btn active" id="rb-m"><span style="font-size:24px">🩺</span>Médico</div>
+        <div class="role-btn" id="rb-f"><span style="font-size:24px">💙</span>Familia</div>
       </div>
-      <div id="auth-error" class="auth-error"></div>
-      <div class="fld"><label class="lbl">Usuario</label><input id="l-email" type="text" placeholder="ej: paula.salado" autocomplete="username"></div>
-      <div class="fld" style="margin-bottom:1rem"><label class="lbl">Contraseña</label><input id="l-pass" type="password" placeholder="••••••••" autocomplete="current-password"></div>
+      <div class="fld"><label class="lbl">Email</label><input id="l-email" value="medico@pediapp.com"></div>
+      <div class="fld"><label class="lbl">Contraseña</label><input id="l-pass" type="password" value="demo1234"></div>
       <button class="btn-login" id="btn-login">Ingresar</button>
+      <div style="margin-top:.75rem;font-size:11px;color:var(--muted)">Demo: cualquier credencial funciona</div>
     </div>
   </div>
 </div>
@@ -224,79 +205,101 @@ svg.ic-sm{width:13px;height:13px;vertical-align:-2px;color:var(--muted)}
 <!-- APP -->
 <div id="app">
   <div class="topbar">
-    <div class="tb-logo">🩺 PediApp</div>
-    <button id="btn-volver" style="display:none">◀ Pacientes</button>
+    <div class="tb-logo"><span style="font-size:20px">🩺</span>PediApp</div>
+    <button id="btn-volver">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><polyline points="15 18 9 12 15 6"/></svg>
+      Pacientes
+    </button>
     <span id="tb-pac-nombre"></span>
-    <span class="sync-badge" id="sync-badge">☁ Guardado</span>
     <div class="tb-right">
-      <div class="avatar" id="tb-av">?</div>
-      <span class="tb-name" id="tb-name"></span>
+      <div class="avatar" id="tb-av">DR</div>
+      <span class="tb-name" id="tb-name">Dr. García</span>
       <button class="btn-sm-out" id="btn-logout">Salir</button>
     </div>
   </div>
-
-  <!-- PANTALLA LISTA PACIENTES -->
-  <div id="pac-screen">
-    <div class="pac-screen-body">
-      <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem;flex-wrap:wrap">
-        <div style="font-size:19px;font-weight:600;color:var(--teal-d)">👶 Mis pacientes</div>
-        <button class="btn btn-teal" id="btn-nuevo-pac-screen" style="margin-left:auto">＋ Nuevo paciente</button>
+  <div id="pac-screen" style="display:none;flex-direction:column;min-height:calc(100vh - 50px)">
+      <div style="flex:1;padding:1.5rem;max-width:680px;width:100%;margin:0 auto">
+        <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem;flex-wrap:wrap">
+          <div style="font-size:19px;font-weight:600;color:var(--teal-d);display:flex;align-items:center;gap:8px">
+            <span style="font-size:20px">👶</span>
+            Mis pacientes
+          </div>
+          <button class="btn btn-teal" id="btn-nuevo-pac-screen" style="margin-left:auto">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Nuevo paciente
+          </button>
+        </div>
+        <div style="position:relative;margin-bottom:1rem">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;left:.75rem;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--muted)"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input id="pac-search-screen" placeholder="Buscar paciente..." style="padding-left:2.25rem">
+        </div>
+        <div id="pac-list-screen"></div>
       </div>
-      <div style="position:relative;margin-bottom:1rem">
-        <input id="pac-search-screen" placeholder="🔍  Buscar paciente...">
-      </div>
-      <div id="pac-list-screen"></div>
     </div>
-  </div>
 
-  <!-- MAIN CLÍNICO -->
-  <div id="main-clinico">
+    <div class="main" id="main-clinico" style="display:none">
     <div class="sidebar" id="sidebar-main">
       <div class="sb-sec">Paciente</div>
-      <div class="sb-item active" data-sec="perfil">👤 Perfil</div>
-      <div class="sb-item" data-sec="neonatal">🍼 Neonatología</div>
+      <div class="sb-item active" data-sec="perfil"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3"/><path d="M6.168 18.849a4 4 0 0 1 3.832-2.849h4a4 4 0 0 1 3.834 2.855"/></svg>Perfil</div>
+      <div class="sb-item" data-sec="neonatal"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="17" r="2"/><circle cx="16" cy="17" r="2"/><path d="M2 5h2l2 9h10l2-7H8"/></svg>Neonatología</div>
       <div class="sb-sec">Crecimiento</div>
-      <div class="sb-item" data-sec="antro">📏 Antropometría</div>
-      <div class="sb-item" data-sec="graficos">📈 Curvas</div>
+      <div class="sb-item" data-sec="antro"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 14l-3 3L2 6z"/><path d="M8 6l-1.5 1.5"/><path d="M11 9l-1.5 1.5"/><path d="M14 12l-1.5 1.5"/></svg>Antropometría</div>
+      <div class="sb-item" data-sec="graficos"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg>Curvas de crecimiento</div>
       <div class="sb-sec">Desarrollo</div>
-      <div class="sb-item" data-sec="desarrollo">🧠 Desarrollo (IODI)</div>
+      <div class="sb-item" data-sec="desarrollo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"/><circle cx="8" cy="12" r="2" fill="currentColor"/><circle cx="16" cy="12" r="2" fill="currentColor"/><line x1="8" y1="7" x2="8" y2="10"/><line x1="16" y1="7" x2="16" y2="10"/><line x1="8" y1="14" x2="8" y2="17"/><line x1="16" y1="14" x2="16" y2="17"/></svg>Desarrollo (IODI)</div>
       <div class="sb-sec">Seguimiento</div>
-      <div class="sb-item" data-sec="estudios">🔬 Estudios</div>
-      <div class="sb-item" data-sec="ic">👥 Interconsultas</div>
-      <div class="sb-item" data-sec="enfermedad" id="sb-enfermedad">🌡️ Enfermedad actual</div>
-      <div class="sb-item medico-only sec-hidden" data-sec="exportar">🖨️ Exportar</div>
+      <div class="sb-item" data-sec="estudios"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3h4v8l3.5 6.5A1 1 0 0 1 16.6 19H7.4a1 1 0 0 1-.9-1.5L10 11V3z"/><line x1="10" y1="3" x2="10" y2="9"/><line x1="14" y1="3" x2="14" y2="9"/></svg>Estudios</div>
+      <div class="sb-item" data-sec="ic"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0-3-3.85"/></svg>Interconsultas</div>
+      <div class="sb-item" data-sec="enfermedad" id="sb-enfermedad"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13.5V4a2 2 0 1 1 4 0v9.5"/><circle cx="12" cy="17" r="3"/><path d="M10 9h4"/></svg>Enfermedad actual</div>
+      <div class="sb-item medico-only sec-hidden" data-sec="exportar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>Exportar / imprimir</div>
+      
     </div>
-
     <div class="content">
 
 <!-- PERFIL -->
 <section id="sec-perfil">
-  <div class="page-title">👤 Perfil del paciente</div>
+  <div class="page-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3"/><path d="M6.168 18.849a4 4 0 0 1 3.832-2.849h4a4 4 0 0 1 3.834 2.855"/></svg>Perfil del paciente</div>
   <div class="page-sub">Datos de identificación y nacimiento</div>
   <div class="card">
-    <div class="card-title">🪪 Datos personales</div>
-    <div class="fr"><div class="fld"><label class="lbl">Nombre</label><input id="p-nom" placeholder="Nombre"></div><div class="fld"><label class="lbl">Apellido</label><input id="p-ape" placeholder="Apellido"></div></div>
-    <div class="fr"><div class="fld"><label class="lbl">Fecha de nacimiento</label><input id="p-fnac" type="date"></div><div class="fld"><label class="lbl">Sexo</label><select id="p-sexo"><option value="">Seleccioná</option><option value="M">Masculino</option><option value="F">Femenino</option></select></div></div>
-    <div class="fr1 fr"><div class="fld"><label class="lbl">WhatsApp familiar</label><input id="p-wa" type="tel" placeholder="+54 381 000-0000"></div></div>
+    <div class="card-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="12" cy="10" r="2"/><path d="M8 18v-1a4 4 0 0 1 8 0v1"/><path d="M9 4v2h6V4"/></svg>Datos personales</div>
+    <div class="fr">
+      <div class="fld"><label class="lbl">Nombre</label><input id="p-nom" placeholder="Nombre"></div>
+      <div class="fld"><label class="lbl">Apellido</label><input id="p-ape" placeholder="Apellido"></div>
+    </div>
+    <div class="fr">
+      <div class="fld"><label class="lbl">Fecha de nacimiento</label><input id="p-fnac" type="date"></div>
+      <div class="fld"><label class="lbl">Sexo</label><select id="p-sexo"><option value="">Seleccioná</option><option value="M">Masculino</option><option value="F">Femenino</option></select></div>
+    </div>
+    <div class="fr1 fr"><div class="fld"><label class="lbl">WhatsApp familiar</label><input id="p-wa" placeholder="+54 381 000-0000" type="tel"></div></div>
   </div>
   <div class="card">
-    <div class="card-title">👶 Datos al nacer — Intergrowth-21</div>
-    <div class="fr fr3"><div class="fld"><label class="lbl">EG (semanas)</label><input id="p-eg" type="number" min="22" max="42" placeholder="39"></div><div class="fld"><label class="lbl">Peso (g)</label><input id="p-peso-nac" type="number" placeholder="3250"></div><div class="fld"><label class="lbl">Talla (cm)</label><input id="p-talla-nac" type="number" placeholder="50"></div></div>
-    <div class="fr"><div class="fld"><label class="lbl">Perímetro cefálico (cm)</label><input id="p-pc-nac" type="number" placeholder="34"></div><div><label class="lbl" style="margin-bottom:6px">Percentiles al nacer</label><div style="display:flex;gap:.4rem;flex-wrap:wrap" id="pc-nac-badges"><span style="font-size:12px;color:var(--muted)">Ingresá EG, sexo y medidas</span></div></div></div>
+    <div class="card-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="3"/><path d="M9 20a9 9 0 0 1 0-12"/><path d="M15 20a9 9 0 0 0 0-12"/><path d="M12 17v3"/><path d="M11 20h2"/></svg>Datos al nacer — Intergrowth-21</div>
+    <div class="fr fr3">
+      <div class="fld"><label class="lbl">Edad gestacional (semanas)</label><input id="p-eg" type="number" min="22" max="42" placeholder="39"></div>
+      <div class="fld"><label class="lbl">Peso al nacer (g)</label><input id="p-peso-nac" type="number" placeholder="3250"></div>
+      <div class="fld"><label class="lbl">Talla al nacer (cm)</label><input id="p-talla-nac" type="number" placeholder="50"></div>
+    </div>
+    <div class="fr">
+      <div class="fld"><label class="lbl">Perímetro cefálico (cm)</label><input id="p-pc-nac" type="number" placeholder="34"></div>
+      <div>
+        <label class="lbl" style="margin-bottom:6px">Percentiles al nacer</label>
+        <div style="display:flex;gap:.4rem;flex-wrap:wrap" id="pc-nac-badges"><span style="font-size:12px;color:var(--muted)">Ingresá EG, sexo y medidas</span></div>
+      </div>
+    </div>
     <div id="edad-display" style="display:none;margin-top:.5rem;padding:.65rem .75rem;background:var(--yellow-l);border-radius:var(--r-sm);font-size:13px;border:0.5px solid var(--yellow)"></div>
   </div>
   <div style="display:flex;align-items:center;gap:.75rem;justify-content:flex-end">
-    <span id="p-ok" style="display:none" class="tag tg">✓ Guardado</span>
-    <button class="btn btn-teal" id="btn-save-perfil">💾 Guardar perfil</button>
+    <span id="p-ok" style="display:none" class="tag tg"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Guardado</span>
+    <button class="btn btn-teal" id="btn-save-perfil"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h10l4 4v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2"/><circle cx="12" cy="15" r="2"/><polyline points="14 4 14 8 8 8 8 4"/></svg>Guardar</button>
   </div>
 </section>
 
 <!-- NEONATAL -->
 <section id="sec-neonatal" class="sec-hidden">
-  <div class="page-title">🍼 Neonatología</div>
+  <div class="page-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="17" r="2"/><circle cx="16" cy="17" r="2"/><path d="M2 5h2l2 9h10l2-7H8"/></svg>Neonatología</div>
   <div class="page-sub">Antecedentes de internación al nacer</div>
   <div class="card">
-    <div class="card-title">🏥 Internación</div>
+    <div class="card-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-5h6v5"/><path d="M10 11h4"/><path d="M12 9v4"/></svg>Internación</div>
     <div class="toggle-row"><span>¿Estuvo internado en Neonatología?</span><label class="tgl"><input type="checkbox" id="neo-i"><span class="tgl-s"></span></label></div>
     <div class="toggle-row"><span>¿Usó respirador?</span><label class="tgl"><input type="checkbox" id="neo-r"><span class="tgl-s"></span></label></div>
     <div class="toggle-row"><span>¿Necesitó oxígeno?</span><label class="tgl"><input type="checkbox" id="neo-o"><span class="tgl-s"></span></label></div>
@@ -305,685 +308,383 @@ svg.ic-sm{width:13px;height:13px;vertical-align:-2px;color:var(--muted)}
     <div class="toggle-row"><span>¿Recibió transfusión?</span><label class="tgl"><input type="checkbox" id="neo-t"><span class="tgl-s"></span></label></div>
     <div style="margin-top:.85rem"><label class="lbl">Tiempo de internación</label><input id="neo-dias" placeholder="Ej: 21 días, 6 semanas..." style="max-width:280px;margin-top:4px"></div>
   </div>
-  <div style="display:flex;align-items:center;gap:.75rem"><button class="btn btn-teal" id="btn-save-neo">💾 Guardar</button><span id="neo-ok" style="display:none" class="tag tg">✓ Guardado</span></div>
+  <div style="display:flex;align-items:center;gap:.75rem">
+    <button class="btn btn-teal" id="btn-save-neo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h10l4 4v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2"/><circle cx="12" cy="15" r="2"/><polyline points="14 4 14 8 8 8 8 4"/></svg>Guardar</button>
+    <span id="neo-ok" style="display:none" class="tag tg"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Guardado</span>
+  </div>
 </section>
 
 <!-- ANTROPOMETRÍA -->
 <section id="sec-antro" class="sec-hidden">
-  <div class="page-title">📏 Antropometría</div>
-  <div class="page-sub">Percentil calculado automáticamente · Intergrowth-21 / SAP</div>
+  <div class="page-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 14l-3 3L2 6z"/><path d="M8 6l-1.5 1.5"/><path d="M11 9l-1.5 1.5"/><path d="M14 12l-1.5 1.5"/></svg>Antropometría</div>
+  <div class="page-sub">Cualquiera puede cargar — percentil calculado automáticamente</div>
   <div class="card">
-    <div class="card-title">➕ Nuevo registro</div>
-    <div class="fr"><div class="fld"><label class="lbl">Fecha del control</label><input id="a-fecha" type="date"></div><div style="padding:.5rem .75rem;background:var(--yellow-l);border:0.5px solid var(--yellow);border-radius:var(--r-sm);font-size:12px;align-self:end;line-height:1.5" id="a-edad-calc">Ingresá fecha para calcular la edad</div></div>
-    <div class="fr fr3"><div class="fld"><label class="lbl">Peso (g)</label><input id="a-peso" type="number" placeholder="5800"></div><div class="fld"><label class="lbl">Talla (cm)</label><input id="a-talla" type="number" placeholder="62"></div><div class="fld"><label class="lbl">PC (cm)</label><input id="a-pc" type="number" placeholder="40"></div></div>
-    <div id="antro-pcts-live" style="display:none;margin-bottom:.65rem;padding:.6rem .75rem;background:var(--yellow-l);border:0.5px solid var(--yellow);border-radius:var(--r-sm)"><div style="font-size:11px;color:var(--muted);margin-bottom:4px">Percentiles calculados</div><div style="display:flex;gap:.5rem;flex-wrap:wrap" id="antro-pcts-badges"></div><div style="font-size:11px;color:var(--muted);margin-top:4px" id="antro-ref-label"></div></div>
+    <div class="card-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nuevo registro</div>
+    <div class="fr">
+      <div class="fld"><label class="lbl">Fecha del control</label><input id="a-fecha" type="date"></div>
+      <div style="padding:.5rem .75rem;background:var(--yellow-l);border:0.5px solid var(--yellow);border-radius:var(--r-sm);font-size:12px;align-self:end;line-height:1.5" id="a-edad-calc">Ingresá fecha para calcular la edad</div>
+    </div>
+    <div class="fr fr3">
+      <div class="fld"><label class="lbl">Peso (g)</label><input id="a-peso" type="number" placeholder="5800"></div>
+      <div class="fld"><label class="lbl">Talla (cm)</label><input id="a-talla" type="number" placeholder="62"></div>
+      <div class="fld"><label class="lbl">Perímetro cefálico (cm)</label><input id="a-pc" type="number" placeholder="40"></div>
+    </div>
+    <div id="antro-pcts-live" style="display:none;margin-bottom:.65rem;padding:.6rem .75rem;background:var(--yellow-l);border:0.5px solid var(--yellow);border-radius:var(--r-sm)">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Percentiles calculados</div>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap" id="antro-pcts-badges"></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:4px" id="antro-ref-label"></div>
+    </div>
     <div class="fr1 fr"><div class="fld"><label class="lbl">Observaciones</label><textarea id="a-obs" placeholder="Notas del control..."></textarea></div></div>
-    <button class="btn btn-teal" id="btn-add-antro">➕ Agregar registro</button>
+    <button class="btn btn-teal" id="btn-add-antro"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Agregar registro</button>
   </div>
-  <div class="card"><div class="card-title">📋 Historial de controles</div><div class="table-wrap"><table class="dt"><thead><tr><th>Fecha</th><th>Edad</th><th>Peso (g)</th><th>%P</th><th>Talla</th><th>%T</th><th>PC</th><th>%PC</th><th>Obs.</th></tr></thead><tbody id="antro-tbody"><tr><td colspan="9" style="text-align:center;padding:1.5rem;color:var(--muted)">Sin registros</td></tr></tbody></table></div></div>
+  <div class="card">
+    <div class="card-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>Historial de controles</div>
+    <div class="table-wrap">
+      <table class="dt"><thead><tr><th>Fecha</th><th>Edad</th><th>Peso (g)</th><th>%P</th><th>Talla (cm)</th><th>%T</th><th>PC (cm)</th><th>%PC</th><th>Obs.</th></tr></thead>
+      <tbody id="antro-tbody"><tr><td colspan="9" style="text-align:center;padding:1.5rem;color:var(--muted)">Sin registros</td></tr></tbody></table>
+    </div>
+  </div>
 </section>
 
 <!-- GRÁFICOS -->
 <section id="sec-graficos" class="sec-hidden">
-  <div class="page-title">📈 Curvas de crecimiento</div>
+  <div class="page-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg>Curvas de crecimiento</div>
   <div class="page-sub">Línea del paciente sobre canal de percentiles</div>
-  <div class="iodi-tabs" id="graf-tabs"><button class="iodi-tab active" data-graf="peso">Peso</button><button class="iodi-tab" data-graf="talla">Talla</button><button class="iodi-tab" data-graf="pc">PC</button></div>
-  <div class="card"><div class="card-title" id="graf-title">📈 Peso</div><div class="chart-wrap"><canvas id="chart-main"></canvas></div></div>
+  <div class="iodi-tabs" id="graf-tabs">
+    <button class="iodi-tab active" data-graf="peso">Peso</button>
+    <button class="iodi-tab" data-graf="talla">Talla</button>
+    <button class="iodi-tab" data-graf="pc">Perímetro cefálico</button>
+  </div>
+  <div class="card">
+    <div class="card-title" id="graf-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg>Peso</div>
+    <div class="chart-wrap"><canvas id="chart-main"></canvas></div>
+    <div style="margin-top:.65rem;font-size:11px;color:var(--muted);display:flex;gap:1rem;flex-wrap:wrap">
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:20px;height:2px;background:#1D9E75;display:inline-block"></span>P50</span>
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:20px;height:2px;background:#9FE1CB;display:inline-block"></span>P10–P90</span>
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;background:var(--teal);border-radius:50%;display:inline-block"></span>Paciente</span>
+    </div>
+  </div>
 </section>
 
 <!-- DESARROLLO -->
 <section id="sec-desarrollo" class="sec-hidden">
-  <div class="page-title">🧠 Desarrollo (IODI)</div>
-  <div class="page-sub">Instrumento de Observación del Desarrollo Infantil</div>
+  <div class="page-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"/><circle cx="8" cy="12" r="2" fill="currentColor"/><circle cx="16" cy="12" r="2" fill="currentColor"/><line x1="8" y1="7" x2="8" y2="10"/><line x1="16" y1="7" x2="16" y2="10"/><line x1="8" y1="14" x2="8" y2="17"/><line x1="16" y1="14" x2="16" y2="17"/></svg>Desarrollo (IODI)</div>
+  <div class="page-sub">Basado en el Instrumento de Observación del Desarrollo Infantil</div>
   <div class="card">
-    <div class="card-title">➕ Registrar ítem</div>
+    <div class="card-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Registrar ítem</div>
     <div class="iodi-tabs" id="iodi-tabs">
-      <button class="iodi-tab medico-only active" data-cat="vincular">Vínculo</button>
-      <button class="iodi-tab active-fam" data-cat="social">Social</button>
+      <button class="iodi-tab active medico-only" data-cat="vincular">Vínculo</button>
+      <button class="iodi-tab" data-cat="social">Social</button>
       <button class="iodi-tab" data-cat="motor">Motricidad</button>
       <button class="iodi-tab" data-cat="cvmc">Coordinación</button>
       <button class="iodi-tab" data-cat="comunicacion">Lenguaje</button>
     </div>
-    <div class="iodi-sec vis medico-only" id="iodi-vincular"><div class="fld"><label class="lbl">Ítem de vínculo <span class="tag tp" style="font-size:10px">solo médico</span></label><select id="iodi-sel-vincular"><option value="">Seleccioná</option><option>El cuidador responde a las necesidades del bebé</option><option>El cuidador lo mira cuando le habla</option><option>Hay intercambio de miradas entre el bebé y el cuidador</option><option>Se calma cuando lo alza el cuidador</option></select></div></div>
-    <div class="iodi-sec" id="iodi-social"><div class="fld"><label class="lbl">Ítem socioemocional</label><select id="iodi-sel-social"><option value="">Seleccioná</option><option>Sonríe cuando lo miran</option><option>Muestra placer o malestar con gestos</option><option>Interactúa con el adulto (busca la mirada, sonríe)</option><option>Juega a la escondida</option><option>Se angustia con desconocidos</option><option>Muestra emociones (enojo, miedo, alegría, tristeza)</option><option>Imita gestos (aplaude, baila, saluda)</option><option>Reacciona al "NO" del adulto</option><option>Avisa que se hizo pis o caca</option><option>Le gusta jugar con otros chicos</option><option>Pide para ir al baño</option><option>Juega al lado de otros chicos</option><option>Juega a dar de comer o hacer dormir muñecos</option><option>Logra el control de esfínteres de día</option><option>Espera su turno para jugar o hablar</option></select></div></div>
-    <div class="iodi-sec" id="iodi-motor"><div class="fld"><label class="lbl">Ítem motriz</label><select id="iodi-sel-motor"><option value="">Seleccioná</option><option>Sostiene la cabeza</option><option>Intenta ponerse de costado</option><option>Se sienta solo sin apoyo</option><option>Se desplaza (repta o gatea)</option><option>Se para solo con apoyo</option><option>Da pasos con ayuda</option><option>Camina solo</option><option>Patea una pelota</option><option>Corre sin dificultad</option></select></div></div>
-    <div class="iodi-sec" id="iodi-cvmc"><div class="fld"><label class="lbl">Ítem coordinación</label><select id="iodi-sel-cvmc"><option value="">Seleccioná</option><option>Sigue con la mirada un objeto de lado a lado</option><option>Lleva las manos al centro</option><option>Busca con la mirada la fuente de un sonido</option><option>Intenta agarrar un objeto</option><option>Agarra un objeto y se lo lleva a la boca</option><option>Hace gestos para pedir o mostrar</option><option>Juega a poner y sacar objetos</option><option>Colabora para vestirse o desvestirse</option><option>Come solo parte del alimento</option><option>Señala partes del cuerpo cuando le preguntan</option><option>Garabatea</option><option>Se saca o se pone ropa solo</option><option>Dibuja al menos un círculo</option></select></div></div>
-    <div class="iodi-sec" id="iodi-comunicacion"><div class="fld"><label class="lbl">Ítem lenguaje</label><select id="iodi-sel-comunicacion"><option value="">Seleccioná</option><option>Reacciona a un sonido o voz</option><option>Hace sonidos (gorjeo)</option><option>Balbucea (ma-pa-tatata)</option><option>Responde cuando lo llaman por su nombre</option><option>Se comunica de alguna forma (verbal o gestual)</option><option>Entiende consignas simples</option><option>Dice al menos una palabra</option><option>Usa el "NO"</option><option>Usa frases de dos palabras</option><option>Dice su nombre</option><option>Usa el "yo" y el "mío"</option><option>Puede hacer un relato sencillo</option></select></div></div>
-    <div class="fr" style="margin-top:.65rem"><div class="fld"><label class="lbl">Resultado</label><select id="iodi-resultado"><option value="logrado">Lo hace</option><option value="preguntado">Lo hace (referido por familia)</option><option value="seguimiento">Todavía no lo hace</option></select></div><div class="fld"><label class="lbl">Edad / fecha</label><input id="iodi-edad" placeholder="Ej: 3 meses"></div></div>
-    <div class="fr1 fr"><div class="fld"><label class="lbl">Observaciones</label><textarea id="iodi-obs"></textarea></div></div>
-    <button class="btn btn-teal" id="btn-add-hito">➕ Registrar</button>
+    <div class="iodi-sec vis medico-only" id="iodi-vincular">
+      <div class="fld"><label class="lbl">Ítem de vínculo <span class="tag tp" style="font-size:10px">solo médico</span></label>
+      <select id="iodi-sel-vincular"><option value="">Seleccioná</option>
+        <option>El cuidador responde a las necesidades del bebé</option>
+        <option>El cuidador lo mira cuando le habla</option>
+        <option>Hay intercambio de miradas entre el bebé y el cuidador</option>
+        <option>Se calma cuando lo alza el cuidador</option>
+      </select></div>
+    </div>
+    <div class="iodi-sec" id="iodi-social">
+      <div class="fld"><label class="lbl">Ítem socioemocional</label>
+      <select id="iodi-sel-social"><option value="">Seleccioná</option>
+        <option>Sonríe cuando lo miran</option><option>Muestra placer o malestar con gestos</option>
+        <option>Interactúa con el adulto (busca la mirada, sonríe)</option>
+        <option>Juega a la escondida</option><option>Se angustia con desconocidos</option>
+        <option>Muestra emociones (enojo, miedo, alegría, tristeza)</option>
+        <option>Imita gestos (aplaude, baila, saluda)</option><option>Reacciona al "NO" del adulto</option>
+        <option>Avisa que se hizo pis o caca</option><option>Le gusta jugar con otros chicos</option>
+        <option>Pide para ir al baño</option><option>Juega al lado de otros chicos</option>
+        <option>Juega a dar de comer o hacer dormir muñecos</option>
+        <option>Logra el control de esfínteres de día</option>
+        <option>Espera su turno para jugar o hablar</option>
+      </select></div>
+    </div>
+    <div class="iodi-sec" id="iodi-motor">
+      <div class="fld"><label class="lbl">Ítem motriz</label>
+      <select id="iodi-sel-motor"><option value="">Seleccioná</option>
+        <option>Sostiene la cabeza</option><option>Intenta ponerse de costado</option>
+        <option>Se sienta solo sin apoyo</option><option>Se desplaza (repta o gatea)</option>
+        <option>Se para solo con apoyo</option><option>Da pasos con ayuda</option>
+        <option>Camina solo</option><option>Patea una pelota</option><option>Corre sin dificultad</option>
+      </select></div>
+    </div>
+    <div class="iodi-sec" id="iodi-cvmc">
+      <div class="fld"><label class="lbl">Ítem coordinación y cognición</label>
+      <select id="iodi-sel-cvmc"><option value="">Seleccioná</option>
+        <option>Sigue con la mirada un objeto de lado a lado</option>
+        <option>Lleva las manos al centro</option><option>Busca con la mirada la fuente de un sonido</option>
+        <option>Intenta agarrar un objeto</option><option>Agarra un objeto y se lo lleva a la boca</option>
+        <option>Hace gestos para pedir o mostrar</option><option>Juega a poner y sacar objetos</option>
+        <option>Colabora para vestirse o desvestirse</option><option>Come solo parte del alimento</option>
+        <option>Señala partes del cuerpo cuando le preguntan</option>
+        <option>Garabatea</option><option>Se saca o se pone ropa solo</option>
+        <option>Dibuja al menos un círculo</option>
+      </select></div>
+    </div>
+    <div class="iodi-sec" id="iodi-comunicacion">
+      <div class="fld"><label class="lbl">Ítem comunicación y lenguaje</label>
+      <select id="iodi-sel-comunicacion"><option value="">Seleccioná</option>
+        <option>Reacciona a un sonido o voz</option><option>Hace sonidos (gorjeo)</option>
+        <option>Balbucea (ma-pa-tatata)</option><option>Responde cuando lo llaman por su nombre</option>
+        <option>Se comunica de alguna forma (verbal o gestual)</option>
+        <option>Entiende consignas simples</option><option>Dice al menos una palabra</option>
+        <option>Usa el "NO"</option><option>Usa frases de dos palabras</option>
+        <option>Dice su nombre</option><option>Usa el "yo" y el "mío"</option>
+        <option>Puede hacer un relato sencillo</option>
+      </select></div>
+    </div>
+    <div class="fr" style="margin-top:.65rem">
+      <div class="fld"><label class="lbl">Resultado</label>
+        <select id="iodi-resultado">
+          <option value="logrado">Lo hace</option>
+          <option value="preguntado">Lo hace (referido por familia)</option>
+          <option value="seguimiento">Todavía no lo hace</option>
+        </select>
+      </div>
+      <div class="fld"><label class="lbl">Edad / fecha</label><input id="iodi-edad" placeholder="Ej: 3 meses"></div>
+    </div>
+    <div class="fr1 fr"><div class="fld"><label class="lbl">Observaciones</label><textarea id="iodi-obs" placeholder="Notas..."></textarea></div></div>
+    <div class="fr">
+      <div class="fld"><label class="lbl">Próximo control sugerido</label><input id="iodi-proximo" type="date"></div>
+      <div style="display:flex;align-items:flex-end"><button class="btn btn-teal" id="btn-add-hito"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Registrar</button></div>
+    </div>
   </div>
-  <div class="card"><div class="card-title">✅ Registro de desarrollo</div><div id="hitos-list"><div class="empty"><span class="empty-icon">🧠</span>Sin registros</div></div></div>
+  <div class="card">
+    <div class="card-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="7" x2="20" y2="7"/><line x1="10" y1="12" x2="20" y2="12"/><line x1="10" y1="17" x2="20" y2="17"/><polyline points="4 7 6 9 8 7"/><polyline points="4 12 6 14 8 12"/><polyline points="4 17 6 19 8 17"/></svg>Registro de desarrollo</div>
+    <div id="hitos-list"><div class="empty"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"/><circle cx="8" cy="12" r="2" fill="currentColor"/><circle cx="16" cy="12" r="2" fill="currentColor"/><line x1="8" y1="7" x2="8" y2="10"/><line x1="16" y1="7" x2="16" y2="10"/><line x1="8" y1="14" x2="8" y2="17"/><line x1="16" y1="14" x2="16" y2="17"/></svg>Sin registros</div></div>
+  </div>
 </section>
 
 <!-- ESTUDIOS -->
 <section id="sec-estudios" class="sec-hidden">
-  <div class="page-title">🔬 Estudios realizados</div>
+  <div class="page-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3h4v8l3.5 6.5A1 1 0 0 1 16.6 19H7.4a1 1 0 0 1-.9-1.5L10 11V3z"/><line x1="10" y1="3" x2="10" y2="9"/><line x1="14" y1="3" x2="14" y2="9"/></svg>Estudios realizados</div>
   <div class="page-sub">La familia o el médico pueden cargar</div>
   <div class="card">
-    <div class="card-title">➕ Cargar estudio</div>
-    <div class="fr"><div class="fld"><label class="lbl">Tipo</label><select id="est-tipo"><option value="">Seleccioná</option><option>Laboratorio</option><option>Ecografía</option><option>Rx tórax</option><option>Ecocardiograma</option><option>EEG</option><option>RMN cerebral</option><option>Potenciales evocados auditivos</option><option>Fondo de ojo</option><option>Otoemisiones acústicas</option><option>Otro</option></select></div><div class="fld"><label class="lbl">Fecha</label><input id="est-fecha" type="date"></div></div>
-    <div class="fr"><div class="fld"><label class="lbl">Resultado</label><select id="est-res"><option value="">—</option><option value="normal">Normal</option><option value="patologico">Patológico</option><option value="pendiente">Pendiente</option></select></div><div class="fld"><label class="lbl">Próximo control</label><input id="est-ctrl" type="date"></div></div>
-    <div class="fr1 fr"><div class="fld"><label class="lbl">Informe</label><textarea id="est-inf" placeholder="Descripción..."></textarea></div></div>
-    <div class="fr1 fr" id="hallazgo-field" style="display:none"><div class="fld"><label class="lbl" style="color:var(--red-d)">Hallazgo patológico</label><textarea id="est-hall"></textarea></div></div>
-    <button class="btn btn-teal" id="btn-add-est">➕ Guardar</button>
+    <div class="card-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Cargar estudio</div>
+    <div class="fr">
+      <div class="fld"><label class="lbl">Tipo de estudio</label>
+        <select id="est-tipo"><option value="">Seleccioná</option><option>Laboratorio</option><option>Ecografía</option><option>Rx tórax</option><option>Ecocardiograma</option><option>EEG</option><option>RMN cerebral</option><option>Potenciales evocados auditivos</option><option>Fondo de ojo</option><option>Otoemisiones acústicas</option><option>Otro</option></select>
+      </div>
+      <div class="fld"><label class="lbl">Fecha</label><input id="est-fecha" type="date"></div>
+    </div>
+    <div class="fr">
+      <div class="fld"><label class="lbl">Resultado</label>
+        <select id="est-res"><option value="">—</option><option value="normal">Normal</option><option value="patologico">Patológico</option><option value="pendiente">Pendiente</option></select>
+      </div>
+      <div class="fld"><label class="lbl">Próximo control</label><input id="est-ctrl" type="date"></div>
+    </div>
+    <div class="fr1 fr"><div class="fld"><label class="lbl">Informe breve</label><textarea id="est-inf" placeholder="Descripción..."></textarea></div></div>
+    <div class="fr1 fr" id="hallazgo-field" style="display:none">
+      <div class="fld"><label class="lbl" style="color:var(--red-d)">Hallazgo patológico</label><textarea id="est-hall" placeholder="Detallar hallazgo y conducta..."></textarea></div>
+    </div>
+    <button class="btn btn-teal" id="btn-add-est"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Guardar estudio</button>
   </div>
-  <div class="card"><div class="card-title">📋 Historial</div><div id="est-list"><div class="empty"><span class="empty-icon">🔬</span>Sin estudios</div></div></div>
+  <div class="card">
+    <div class="card-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="5" cy="6" r="1" fill="currentColor"/><circle cx="5" cy="12" r="1" fill="currentColor"/><circle cx="5" cy="18" r="1" fill="currentColor"/></svg>Historial</div>
+    <div id="est-list"><div class="empty"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3h4v8l3.5 6.5A1 1 0 0 1 16.6 19H7.4a1 1 0 0 1-.9-1.5L10 11V3z"/><line x1="10" y1="3" x2="10" y2="9"/><line x1="14" y1="3" x2="14" y2="9"/></svg>Sin estudios</div></div>
+  </div>
 </section>
 
 <!-- INTERCONSULTAS -->
 <section id="sec-ic" class="sec-hidden">
-  <div class="page-title">👥 Interconsultas</div>
+  <div class="page-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0-3-3.85"/></svg>Interconsultas</div>
   <div class="page-sub">La familia o el médico pueden registrar</div>
   <div class="card">
-    <div class="card-title">➕ Nueva interconsulta</div>
-    <div class="fr"><div class="fld"><label class="lbl">Especialidad</label><select id="ic-esp"><option value="">Seleccioná</option><option>Oftalmología</option><option>Otorrinolaringología</option><option>Neurología</option><option>Cardiología</option><option>Neumonología</option><option>Gastroenterología</option><option>Nutrición</option><option>Fonoaudiología</option><option>Kinesiología</option><option>Traumatología</option><option>Cirugía infantil</option><option>Infectología</option><option>Genética</option><option>Otro</option></select></div><div class="fld"><label class="lbl">Fecha</label><input id="ic-fecha" type="date"></div></div>
-    <div class="fr"><div class="fld"><label class="lbl">Resultado</label><select id="ic-res"><option value="">—</option><option value="normal">Normal</option><option value="patologico">Patológico</option></select></div><div class="fld"><label class="lbl">Próximo control</label><input id="ic-prox" type="date"></div></div>
-    <div class="fr1 fr" id="ic-hall-field" style="display:none"><div class="fld"><label class="lbl" style="color:var(--red-d)">¿Por qué es patológico?</label><textarea id="ic-hall"></textarea></div></div>
-    <div class="fr"><div class="fld"><label class="lbl">¿Se solicitó estudio?</label><div style="display:flex;gap:1rem;margin-top:5px"><label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer"><input type="radio" name="ic-est" value="si"> Sí</label><label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer"><input type="radio" name="ic-est" value="no" checked> No</label></div></div><div class="fld"><label class="lbl">Estudio solicitado</label><input id="ic-est-sol"></div></div>
-    <div class="fr1 fr"><div class="fld"><label class="lbl">Resultado del estudio</label><textarea id="ic-est-res"></textarea></div></div>
-    <button class="btn btn-teal" id="btn-add-ic">➕ Guardar</button>
+    <div class="card-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nueva interconsulta</div>
+    <div class="fr">
+      <div class="fld"><label class="lbl">Especialidad</label>
+        <select id="ic-esp"><option value="">Seleccioná</option><option>Oftalmología</option><option>Otorrinolaringología</option><option>Neurología</option><option>Cardiología</option><option>Neumonología</option><option>Gastroenterología</option><option>Nutrición</option><option>Fonoaudiología</option><option>Kinesiología</option><option>Traumatología</option><option>Cirugía infantil</option><option>Infectología</option><option>Genética</option><option>Otro</option></select>
+      </div>
+      <div class="fld"><label class="lbl">Fecha</label><input id="ic-fecha" type="date"></div>
+    </div>
+    <div class="fr">
+      <div class="fld"><label class="lbl">Resultado</label>
+        <select id="ic-res"><option value="">—</option><option value="normal">Normal</option><option value="patologico">Patológico</option></select>
+      </div>
+      <div class="fld"><label class="lbl">Próximo control</label><input id="ic-prox" type="date"></div>
+    </div>
+    <div class="fr1 fr" id="ic-hall-field" style="display:none">
+      <div class="fld"><label class="lbl" style="color:var(--red-d)">¿Por qué es patológico?</label><textarea id="ic-hall" placeholder="Detallar..."></textarea></div>
+    </div>
+    <div class="fr">
+      <div class="fld"><label class="lbl">¿Se solicitó estudio?</label>
+        <div style="display:flex;gap:1rem;margin-top:5px">
+          <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer"><input type="radio" name="ic-est" value="si"> Sí</label>
+          <label style="display:flex;align-items:center;gap:5px;font-size:13px;cursor:pointer"><input type="radio" name="ic-est" value="no" checked> No</label>
+        </div>
+      </div>
+      <div class="fld"><label class="lbl">Estudio solicitado</label><input id="ic-est-sol" placeholder="Nombre del estudio..."></div>
+    </div>
+    <div class="fr1 fr"><div class="fld"><label class="lbl">Resultado del estudio (si disponible)</label><textarea id="ic-est-res" placeholder="Resultado o pendiente..."></textarea></div></div>
+    <button class="btn btn-teal" id="btn-add-ic"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Guardar</button>
   </div>
-  <div class="card"><div class="card-title">📋 Registradas</div><div id="ic-list"><div class="empty"><span class="empty-icon">👥</span>Sin interconsultas</div></div></div>
+  <div class="card">
+    <div class="card-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="5" cy="6" r="1" fill="currentColor"/><circle cx="5" cy="12" r="1" fill="currentColor"/><circle cx="5" cy="18" r="1" fill="currentColor"/></svg>Registradas</div>
+    <div id="ic-list"><div class="empty"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0-3-3.85"/></svg>Sin interconsultas</div></div>
+  </div>
 </section>
 
 <!-- ENFERMEDAD -->
 <section id="sec-enfermedad" class="sec-hidden">
-  <div class="page-title">🌡️ Enfermedad actual</div>
-  <div id="enf-lock" class="enf-lock sec-hidden"><span style="font-size:36px;display:block;margin-bottom:.75rem">🔒</span><div style="font-size:14px;font-weight:500;margin-bottom:.4rem;color:var(--text)">Sección no disponible</div><div style="font-size:13px">El médico activa esta sección cuando hay una enfermedad en seguimiento.</div></div>
+  <div class="page-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13.5V4a2 2 0 1 1 4 0v9.5"/><circle cx="12" cy="17" r="3"/><path d="M10 9h4"/></svg>Enfermedad actual</div>
+  <div id="enf-lock" class="enf-lock sec-hidden">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    <div style="font-size:14px;font-weight:500;margin-bottom:.4rem;color:var(--text)">Sección no disponible</div>
+    <div style="font-size:13px">El médico activa esta sección cuando el paciente tiene una enfermedad en seguimiento.</div>
+  </div>
   <div id="enf-activo">
     <div id="enf-medico-ctrl" class="card medico-only sec-hidden">
-      <div class="card-title">⚙️ Control del médico</div>
-      <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap"><span style="font-size:13px">Seguimiento activo:</span><label class="tgl"><input type="checkbox" id="enf-toggle"><span class="tgl-s"></span></label><span id="enf-estado-label" style="font-size:12px;color:var(--muted)">Inactivo</span></div>
-      <div id="enf-dx-field" style="margin-top:.85rem;display:none"><label class="lbl">Motivo de seguimiento</label><input id="enf-dx" style="margin-top:4px"></div>
+      <div class="card-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Control del médico</div>
+      <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+        <span style="font-size:13px">Seguimiento activo:</span>
+        <label class="tgl"><input type="checkbox" id="enf-toggle"><span class="tgl-s"></span></label>
+        <span id="enf-estado-label" style="font-size:12px;color:var(--muted)">Inactivo</span>
+      </div>
+      <div id="enf-dx-field" style="margin-top:.85rem;display:none">
+        <label class="lbl">Motivo de seguimiento</label>
+        <input id="enf-dx" placeholder="Ej: Bronquiolitis, control post-alta..." style="margin-top:4px">
+      </div>
     </div>
-    <div class="urg-card" id="enf-urg-card" style="display:none"><div class="urg-title">⚠️ Ante una urgencia, ir a guardia</div><div style="font-size:12px;color:#7a4f00;margin-bottom:.6rem;line-height:1.5">Dificultad para respirar, muy decaído, fiebre alta, no come, convulsiones o cualquier situación preocupante: <strong>ir a guardia ya.</strong></div><div style="font-size:14px;font-weight:700;color:#7a4f00;display:flex;gap:1rem;flex-wrap:wrap"><span>Emergencias: 911</span><span>SAME: 107</span></div></div>
+    <div class="urg-card" id="enf-urg-card" style="display:none">
+      <div class="urg-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Ante una urgencia, ir a guardia</div>
+      <div style="font-size:12px;color:#7a4f00;margin-bottom:.6rem;line-height:1.5">Si el niño tiene dificultad para respirar, está muy decaído, tiene fiebre alta, no come nada, convulsa, sufrió un golpe o cualquier situación preocupante: <strong>no esperes, andá a guardia.</strong></div>
+      <div class="urg-nums"><span>Emergencias: 911</span><span>SAME: 107</span><span>Bomberos: 100</span></div>
+    </div>
     <div class="card" id="enf-sint-card" style="display:none">
-      <div class="card-title">📋 Síntomas del día</div>
-      <div id="sint-items"></div>
+      <div class="card-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="12" y2="16"/></svg>Síntomas del día</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:.75rem">Marcá lo que está pasando hoy. Al tildar un síntoma podés agregar más detalles.</div>
+      <div id="sint-items"><!-- generado por JS --></div>
       <div style="margin-top:.5rem;font-size:11px;color:var(--muted)" id="enf-fecha-carga"></div>
-      <div style="margin-top:.85rem"><button class="btn btn-teal" id="btn-guardar-sint">💾 Guardar registro del día</button></div>
+      <div style="margin-top:.85rem"><button class="btn btn-teal" id="btn-guardar-sint"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h10l4 4v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2"/><circle cx="12" cy="15" r="2"/><polyline points="14 4 14 8 8 8 8 4"/></svg>Guardar registro del día</button></div>
     </div>
-    <div class="card"><div class="card-title">🕐 Historial</div><div id="sint-historial"><div class="empty"><span class="empty-icon">📋</span>Sin registros</div></div></div>
+    <div class="card">
+      <div class="card-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/><polyline points="12 7 12 12 15 15"/></svg>Historial de síntomas</div>
+      <div id="sint-historial"><div class="empty"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>Sin registros</div></div>
+    </div>
   </div>
 </section>
 
 <!-- EXPORTAR -->
 <section id="sec-exportar" class="sec-hidden medico-only">
-  <div class="page-title">🖨️ Exportar / imprimir</div>
-  <div class="page-sub">Resumen del paciente</div>
-  <div class="no-print" style="margin-bottom:1rem"><button class="btn btn-yellow" id="btn-print">🖨️ Imprimir / guardar PDF</button></div>
-  <div class="card" id="print-perfil-card"><div class="card-title">👤 Perfil</div><div id="print-perfil-content" style="font-size:13px;line-height:1.8;color:var(--muted)">Cargá datos del paciente.</div></div>
-  <div class="card"><div class="card-title">📏 Antropometría</div><div class="table-wrap"><table class="dt"><thead><tr><th>Fecha</th><th>Edad</th><th>Peso (g)</th><th>%P</th><th>Talla</th><th>%T</th><th>PC</th><th>%PC</th></tr></thead><tbody id="print-antro-tbody"><tr><td colspan="8" style="text-align:center;padding:1rem;color:var(--muted)">Sin datos</td></tr></tbody></table></div></div>
-  <div class="card"><div class="card-title">🧠 Desarrollo</div><div id="print-hitos-content"><div class="empty" style="padding:1rem"><span class="empty-icon">🧠</span>Sin registros</div></div></div>
-  <div class="card"><div class="card-title">📈 Curva de peso</div><div class="chart-wrap"><canvas id="chart-print"></canvas></div></div>
+  <div class="page-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>Exportar / imprimir</div>
+  <div class="page-sub">Genera un resumen del paciente para imprimir o guardar como PDF</div>
+  <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:1.25rem">
+    <button class="btn btn-yellow" id="btn-print"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Imprimir / guardar PDF</button>
+  </div>
+  <div id="print-preview">
+    <div class="card" id="print-perfil-card">
+      <div class="card-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3"/><path d="M6.168 18.849a4 4 0 0 1 3.832-2.849h4a4 4 0 0 1 3.834 2.855"/></svg>Perfil del paciente</div>
+      <div id="print-perfil-content" style="font-size:13px;line-height:1.8;color:var(--muted)">Completá el perfil para ver el resumen.</div>
+    </div>
+    <div class="card">
+      <div class="card-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 14l-3 3L2 6z"/><path d="M8 6l-1.5 1.5"/><path d="M11 9l-1.5 1.5"/><path d="M14 12l-1.5 1.5"/></svg>Antropometría</div>
+      <div class="table-wrap">
+        <table class="dt"><thead><tr><th>Fecha</th><th>Edad</th><th>Peso (g)</th><th>%P</th><th>Talla</th><th>%T</th><th>PC</th><th>%PC</th></tr></thead>
+        <tbody id="print-antro-tbody"><tr><td colspan="8" style="text-align:center;padding:1rem;color:var(--muted)">Sin registros</td></tr></tbody></table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"/><circle cx="8" cy="12" r="2" fill="currentColor"/><circle cx="16" cy="12" r="2" fill="currentColor"/><line x1="8" y1="7" x2="8" y2="10"/><line x1="16" y1="7" x2="16" y2="10"/><line x1="8" y1="14" x2="8" y2="17"/><line x1="16" y1="14" x2="16" y2="17"/></svg>Desarrollo</div>
+      <div id="print-hitos-content"><div class="empty" style="padding:1rem"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"/><circle cx="8" cy="12" r="2" fill="currentColor"/><circle cx="16" cy="12" r="2" fill="currentColor"/><line x1="8" y1="7" x2="8" y2="10"/><line x1="16" y1="7" x2="16" y2="10"/><line x1="8" y1="14" x2="8" y2="17"/><line x1="16" y1="14" x2="16" y2="17"/></svg>Sin registros</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg>Curva de crecimiento (Peso)</div>
+      <div class="chart-wrap"><canvas id="chart-print"></canvas></div>
+    </div>
+  </div>
 </section>
 
-    </div><!-- /content -->
-  </div><!-- /main-clinico -->
-</div><!-- /app -->
+
+<!-- PACIENTES -->
+<section id="sec-pacientes" class="sec-hidden medico-only">
+  <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem;flex-wrap:wrap">
+    <div class="page-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0-3-3.85"/></svg>Mis pacientes</div>
+    <button class="btn btn-teal" id="btn-nuevo-paciente" style="margin-left:auto"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Nuevo paciente</button>
+  </div>
+  <!-- Buscador -->
+  <div style="position:relative;margin-bottom:1rem">
+    <span style="position:absolute;left:.75rem;top:50%;transform:translateY(-50%);color:var(--muted)"><svg xmlns="http://www.w3.org/2000/svg" style="width:16px;height:16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+    <input id="pac-search" placeholder="Buscar por nombre..." style="padding-left:2.25rem">
+  </div>
+  <div id="pac-list"></div>
+</section>
+
+    </div>
+  </div>
+    </div><!-- /main-clinico -->
+</div>
 
 <!-- MODAL NUEVO PACIENTE -->
 <div class="modal-overlay" id="modal-nuevo-pac">
   <div class="modal" style="max-width:460px">
-    <div class="modal-hdr"><span class="modal-title">👶 Nuevo paciente</span><button style="background:var(--gray-l);border:none;cursor:pointer;width:32px;height:32px;border-radius:50%;font-size:16px" id="btn-close-nuevo-pac">✕</button></div>
-    <div style="font-size:13px;color:var(--muted);margin-bottom:1rem">Completá los datos básicos. Podés agregar más después.</div>
-    <div class="form-2col"><div class="fld"><label class="lbl">Nombre</label><input id="np-nom" placeholder="Nombre"></div><div class="fld"><label class="lbl">Apellido</label><input id="np-ape" placeholder="Apellido"></div></div>
-    <div class="form-2col"><div class="fld"><label class="lbl">Fecha de nacimiento</label><input id="np-fnac" type="date"></div><div class="fld"><label class="lbl">Sexo</label><select id="np-sexo"><option value="">Seleccioná</option><option value="M">Masculino</option><option value="F">Femenino</option></select></div></div>
+    <div class="modal-hdr">
+      <span class="modal-title">Nuevo paciente</span>
+      <button style="background:var(--gray-l);border:none;cursor:pointer;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--text)" id="btn-close-nuevo-pac">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:1.1rem">Completá los datos básicos. Podés agregar el resto después de crear el paciente.</div>
+    <div class="form-2col">
+      <div class="fld"><label class="lbl">Nombre</label><input id="np-nom" placeholder="Nombre"></div>
+      <div class="fld"><label class="lbl">Apellido</label><input id="np-ape" placeholder="Apellido"></div>
+    </div>
+    <div class="form-2col">
+      <div class="fld"><label class="lbl">Fecha de nacimiento</label><input id="np-fnac" type="date"></div>
+      <div class="fld"><label class="lbl">Sexo</label>
+        <select id="np-sexo"><option value="">Seleccioná</option><option value="M">Masculino</option><option value="F">Femenino</option></select>
+      </div>
+    </div>
     <div class="fld" style="margin-bottom:.75rem"><label class="lbl">WhatsApp familiar</label><input id="np-wa" type="tel" placeholder="+54 381 000-0000"></div>
     <div style="border-top:0.5px solid var(--border);margin:.85rem 0;padding-top:.85rem">
-      <div style="font-size:12px;font-weight:600;color:var(--teal-d);margin-bottom:.65rem">🔑 Acceso familiar</div>
-      <div class="form-2col"><div class="fld"><label class="lbl">Usuario de la familia</label><input id="np-user" type="text" placeholder="garcia.valentina o email@dominio.com" autocomplete="off"></div><div class="fld"><label class="lbl">Contraseña (mín. 6 caracteres)</label><input id="np-pass" type="password" autocomplete="new-password"></div></div>
-      <div style="font-size:11px;color:var(--muted)">La familia puede usar un nombre de usuario simple (ej: <strong>garcia.valentina</strong>) o un email real. Ingresará con ese usuario y la contraseña que elijas.</div>
+      <div style="font-size:12px;font-weight:600;color:var(--teal-d);margin-bottom:.65rem;display:flex;align-items:center;gap:5px">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Acceso familiar (app)
+      </div>
+      <div class="form-2col">
+        <div class="fld"><label class="lbl">Usuario (email o alias)</label><input id="np-user" placeholder="familia@email.com" autocomplete="off"></div>
+        <div class="fld"><label class="lbl">Contraseña</label><input id="np-pass" type="password" placeholder="Mínimo 6 caracteres" autocomplete="new-password"></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:.25rem">La familia usará estos datos para ingresar a su vista de la app.</div>
     </div>
-    <div id="np-error" style="display:none;background:var(--red-l);color:var(--red-d);border-radius:var(--r-sm);padding:.6rem .85rem;font-size:13px;margin-bottom:.75rem"></div>
-    <div style="display:flex;gap:.65rem;justify-content:flex-end">
+    <div style="display:flex;gap:.65rem;justify-content:flex-end;margin-top:1rem">
       <button class="btn" id="btn-cancel-nuevo-pac">Cancelar</button>
-      <button class="btn btn-teal" id="btn-confirm-nuevo-pac">✓ Crear paciente</button>
+      <button class="btn btn-teal" id="btn-confirm-nuevo-pac">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px"><polyline points="20 6 9 17 4 12"/></svg>
+        Crear paciente
+      </button>
     </div>
   </div>
 </div>
 
-<!-- MODAL GENERAL -->
+<!-- MODAL -->
 <div class="modal-overlay" id="modal">
   <div class="modal">
-    <div class="modal-hdr"><span class="modal-title" id="m-title">Mensaje</span><button style="background:var(--gray-l);border:none;cursor:pointer;width:32px;height:32px;border-radius:50%;font-size:16px" id="btn-close-modal">✕</button></div>
+    <div class="modal-hdr">
+      <span class="modal-title" id="m-title">Mensaje</span>
+      <button style="background:var(--gray-l);border:none;cursor:pointer;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--text)" id="btn-close-modal"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
     <div id="m-body"></div>
-    <div style="margin-top:1.25rem;display:flex;justify-content:flex-end"><button class="btn btn-teal" id="btn-close-modal-2">Cerrar</button></div>
+    <div style="margin-top:1.25rem;display:flex;justify-content:flex-end">
+      <button class="btn btn-teal" id="btn-close-modal-2">Cerrar</button>
+    </div>
   </div>
 </div>
 
 <script>
-// ══════════════════════════════════════════════════════
-// ESTADO LOCAL
-// ══════════════════════════════════════════════════════
-const S={role:'medico',user:null,uid:null,pacienteId:null,perfil:{},antro:[],hitos:[],estudios:[],ic:[],sintomas:[],enfActiva:false,grafMode:'peso',chart:null,chartPrint:null,iodi_cat:'vincular'};
-let pacientes=[];
-let pacienteActual=null;
+const S={role:'medico',user:{name:'Dr. García',init:'DR'},antro:[],hitos:[],estudios:[],ic:[],sintomas:[],enfActiva:false,grafMode:'peso',chart:null,chartPrint:null,iodi_cat:'social',perfil:{}};
 
-// ══════════════════════════════════════════════════════
-// ESPERAR FIREBASE
-// ══════════════════════════════════════════════════════
-function waitFirebase(cb){
-  if(window._firebaseReady){cb();return;}
-  if(window._firebaseError){showModal('Error','No se pudo conectar con Firebase. Verificá tu conexión a internet.');return;}
-  window.addEventListener('firebase-ready',function(){cb();},{once:true});
-}
-
-// ══════════════════════════════════════════════════════
-// HELPERS
-// ══════════════════════════════════════════════════════
-function v(id){const e=document.getElementById(id);return e?e.value.trim():'';}
-function fd(d){if(!d)return'—';try{return new Date(d+'T00:00:00').toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});}catch{return d;}}
-function nowTS(){return new Date().toLocaleString('es-AR',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'});}
-function rl(r){return{normal:'Normal',patologico:'Patológico',pendiente:'Pendiente'}[r]||r||'—';}
-function showOk(id){const e=document.getElementById(id);if(!e)return;e.style.display='flex';setTimeout(()=>e.style.display='none',3e3);}
-function showModal(t,c){document.getElementById('m-title').textContent=t;document.getElementById('m-body').innerHTML=`<p style="font-size:14px;line-height:1.6;color:var(--muted)">${c}</p>`;document.getElementById('modal').classList.add('open');}
-function closeModal(){document.getElementById('modal').classList.remove('open');}
-function showSpinner(v){document.getElementById('spinner').classList.toggle('show',v);}
-function showSyncBadge(ok){const b=document.getElementById('sync-badge');b.textContent=ok?'☁ Guardado':'⚠ Error al guardar';b.className='sync-badge show'+(ok?'':' error');setTimeout(()=>b.classList.remove('show'),2500);}
-
-// ══════════════════════════════════════════════════════
-// FIREBASE HELPERS
-// ══════════════════════════════════════════════════════
-async function fbSet(path,data){
-  const parts=path.split('/');
-  let ref=window._db.collection(parts[0]);
-  for(let i=1;i<parts.length;i++){
-    if(i%2===1) ref=ref.doc(parts[i]);
-    else ref=ref.collection(parts[i]);
-  }
-  await ref.set(data,{merge:true});
-}
-async function fbGet(path){
-  const parts=path.split('/');
-  let ref=window._db.collection(parts[0]);
-  for(let i=1;i<parts.length;i++){
-    if(i%2===1) ref=ref.doc(parts[i]);
-    else ref=ref.collection(parts[i]);
-  }
-  const snap=await ref.get();
-  return snap.exists?snap.data():null;
-}
-async function fbAdd(path,data){
-  const parts=path.split('/');
-  let ref=window._db.collection(parts[0]);
-  for(let i=1;i<parts.length;i++){
-    if(i%2===1) ref=ref.doc(parts[i]);
-    else ref=ref.collection(parts[i]);
-  }
-  const r=await ref.add(data);
-  return r.id;
-}
-async function fbGetCol(path){
-  const parts=path.split('/');
-  let ref=window._db.collection(parts[0]);
-  for(let i=1;i<parts.length;i++){
-    if(i%2===1) ref=ref.doc(parts[i]);
-    else ref=ref.collection(parts[i]);
-  }
-  const snap=await ref.get();
-  return snap.docs.map(d=>({id:d.id,...d.data()}));
-}
-async function fbDel(path){
-  const {doc,deleteDoc}=window._fbFuncs;
-  await deleteDoc(doc(window._db,...path.split('/')));
-}
-
-// ══════════════════════════════════════════════════════
-// AUTH
-// ══════════════════════════════════════════════════════
-function showAuthError(msg){const e=document.getElementById('auth-error');e.textContent=msg;e.style.display='block';}
-function hideAuthError(){document.getElementById('auth-error').style.display='none';}
-
-function toFirebaseEmail(input){
-  if(!input.includes('@'))return input.trim().toLowerCase()+'@pediapp.local';
-  return input.trim().toLowerCase();
-}
-
-
-
-// ══ MÉDICO: usuario fijo paula.salado (se crea UNA SOLA VEZ en Firebase Console)
-// ══ FAMILIAS: se crean desde la app al agregar un nuevo paciente
-
-async function doLogin(){
-  hideAuthError();
-  const rawInput=v('l-email'),pass=v('l-pass');
-  if(!rawInput||!pass){showAuthError('Ingresá usuario y contraseña.');return;}
-  const email=toFirebaseEmail(rawInput);
-  showSpinner(true);
-  waitFirebase(async()=>{
-    try{
-      const cred=await window._auth.signInWithEmailAndPassword(email,pass);
-      // Determinar rol leyendo Firestore
-      const perfDoc=await fbGet(`usuarios/${cred.user.uid}`);
-      S.uid=cred.user.uid;
-      S.user=cred.user;
-      // Rol: solo paula.salado es médico (UID fijo)
-      // Cualquier otro usuario es familia
-      S.role=(cred.user.uid==='OcqsokAJBmeGzMePlLVPQovQLaw1') ? 'medico' : 'familia';
-      showSpinner(false);
-      iniciarApp();
-    }catch(err){
-      showSpinner(false);
-      const msgs={'auth/user-not-found':'Usuario no encontrado.','auth/wrong-password':'Contraseña incorrecta.','auth/invalid-credential':'Email o contraseña incorrectos.','auth/too-many-requests':'Demasiados intentos. Esperá un momento.'};
-      showAuthError(msgs[err.code]||'Error: '+err.message);
-    }
-  });
-}
-
-async function doLogout(){
-  showSpinner(true);
-  waitFirebase(async()=>{
-    await window._auth.signOut();
-    showSpinner(false);
-    document.getElementById('app').style.display='none';
-    document.getElementById('auth-screen').style.display='flex';
-    document.getElementById('btn-volver').style.display='none';
-    document.getElementById('tb-pac-nombre').classList.remove('visible');
-    if(S.chart){S.chart.destroy();S.chart=null;}
-    S.uid=null;S.user=null;pacientes=[];pacienteActual=null;
-  });
-}
-
-// ══════════════════════════════════════════════════════
-// INICIO DE APP (después del login)
-// ══════════════════════════════════════════════════════
-async function iniciarApp(){
-  document.getElementById('auth-screen').style.display='none';
-  const app=document.getElementById('app');app.style.display='flex';app.style.flexDirection='column';
-  // Mostrar nombre legible del médico/familia
-  const userDoc=await fbGet(`usuarios/${S.uid}`).catch(()=>null);
-  const displayName=userDoc?.nombre||userDoc?.usuario||S.user?.email||'?';
-  document.getElementById('tb-av').textContent=displayName[0].toUpperCase();
-  document.getElementById('tb-name').textContent=displayName;
-  const isMed=S.role==='medico';
-  document.querySelectorAll('.medico-only').forEach(el=>el.classList.toggle('sec-hidden',!isMed));
-  if(!isMed){
-    // FAMILIA: va directo a su paciente, sin lista ni botón volver
-    document.getElementById('enf-medico-ctrl').classList.add('sec-hidden');
-    document.getElementById('pac-screen').style.display='none';
-    document.getElementById('main-clinico').classList.add('visible');
-    document.getElementById('btn-volver').style.display='none'; // familia no vuelve a lista
-    document.getElementById('tb-pac-nombre').classList.remove('visible'); // sin nombre en topbar
-    await cargarPacienteFamilia();
-  } else {
-    // MÉDICO: ver lista de pacientes
-    document.getElementById('enf-medico-ctrl').classList.remove('sec-hidden');
-    await cargarListaPacientes();
-    mostrarListaPacientes();
-  }
-  prefillDates();buildSintItems();
-}
-
-// ══════════════════════════════════════════════════════
-// MÉDICO: lista de pacientes
-// ══════════════════════════════════════════════════════
-async function cargarListaPacientes(){
-  showSpinner(true);
-  try{
-    // Médico: leer todos los pacientes donde medicoId=S.uid
-    const snap=await window._db.collection('pacientes').where('medicoId','==',S.uid).get();
-    pacientes=snap.docs.map(d=>({firestoreId:d.id,...d.data(),antro:[],hitos:[],estudios:[],ic:[],sintomas:[]}));
-  }catch(e){console.error(e);}
-  showSpinner(false);
-}
-
-function mostrarListaPacientes(){
-  document.getElementById('pac-screen').style.display='flex';
-  document.getElementById('pac-screen').style.flexDirection='column';
-  document.getElementById('main-clinico').classList.remove('visible');
-  document.getElementById('btn-volver').style.display='none';
-  document.getElementById('tb-pac-nombre').classList.remove('visible');
-  renderPacientesScreen();
-}
-
-function renderPacientesScreen(){
-  const el=document.getElementById('pac-list-screen');
-  const q=(v('pac-search-screen')).toLowerCase();
-  const filtrados=pacientes.filter(p=>!q||((p.nom||'')+' '+(p.ape||'')).toLowerCase().includes(q));
-  if(!filtrados.length){
-    el.innerHTML='<div class="empty"><span class="empty-icon">👶</span><div style="font-size:15px;font-weight:500">Sin pacientes</div><div style="font-size:13px;margin-top:.25rem">Creá el primero con el botón de arriba</div></div>';return;
-  }
-  el.innerHTML=filtrados.map(p=>{
-    const nombre=((p.nom||'Sin nombre')+' '+(p.ape||'')).trim();
-    const init=((p.nom||'?')[0]+(p.ape||'?')[0]).toUpperCase();
-    const edad=calcEdadStr(p.fnac);
-    return`<div class="pac-item" data-id="${p.firestoreId}">
-      <div class="pac-avatar">${init}</div>
-      <div style="flex:1;min-width:0">
-        <div style="font-weight:600;font-size:15px">${nombre}</div>
-        <div style="font-size:12px;color:var(--muted)">${edad}${p.eg&&parseInt(p.eg)<37?' · Prematuro '+p.eg+'sem':''}</div>
-        ${p.usuario?`<div style="font-size:11px;color:var(--teal-d);margin-top:2px">📧 ${p.usuario}</div>`:''}
-      </div>
-      <div style="font-size:18px;color:var(--muted)">›</div>
-    </div>`;
-  }).join('');
-  el.querySelectorAll('.pac-item').forEach(item=>{
-    item.addEventListener('click',()=>abrirPaciente(item.dataset.id));
-  });
-}
-
-async function abrirPaciente(firestoreId){
-  showSpinner(true);
-  S.pacienteId=firestoreId;
-  pacienteActual=pacientes.findIndex(p=>p.firestoreId===firestoreId);
-  // Cargar datos del Firestore
-  try{
-    const [perf,neo,antro,hitos,estudios,ic,sints]=await Promise.all([
-      fbGet(`pacientes/${firestoreId}`),
-      fbGet(`pacientes/${firestoreId}/secciones/neonatal`),
-      fbGetCol(`pacientes/${firestoreId}/antro`),
-      fbGetCol(`pacientes/${firestoreId}/hitos`),
-      fbGetCol(`pacientes/${firestoreId}/estudios`),
-      fbGetCol(`pacientes/${firestoreId}/ic`),
-      fbGetCol(`pacientes/${firestoreId}/sintomas`),
-    ]);
-    S.perfil=perf||{};
-    S.antro=antro.sort((a,b)=>a.fecha>b.fecha?1:-1);
-    S.hitos=hitos.sort((a,b)=>a.ts>b.ts?1:-1);
-    S.estudios=estudios.sort((a,b)=>a.fecha>b.fecha?1:-1);
-    S.ic=ic.sort((a,b)=>a.fecha>b.fecha?1:-1);
-    S.sintomas=sints.sort((a,b)=>a.fecha>b.fecha?-1:1);
-    S.enfActiva=perf?.enfActiva||false;
-    // Cargar DOM
-    cargarPerfilEnDOM(S.perfil);
-    if(neo){
-      ['i','r','o','c','inf','t'].forEach(k=>{const el=document.getElementById('neo-'+k);if(el)el.checked=neo['neo-'+k]||false;});
-      const nd=document.getElementById('neo-dias');if(nd)nd.value=neo.dias||'';
-    }
-  }catch(e){console.error(e);}
-  showSpinner(false);
-  // Mostrar sección clínica
-  document.getElementById('pac-screen').style.display='none';
-  document.getElementById('main-clinico').classList.add('visible');
-  // Botón volver: solo para médico
-  const bv=document.getElementById('btn-volver');
-  if(S.role==='medico'){
-    bv.style.display='flex';
-    const nombre=((S.perfil.nom||'')+' '+(S.perfil.ape||'')).trim()||'Paciente';
-    const el=document.getElementById('tb-pac-nombre');el.textContent=nombre;el.classList.add('visible');
-  } else {
-    bv.style.display='none';
-    document.getElementById('tb-pac-nombre').classList.remove('visible');
-  }
-  // Renderizar todo
-  renderAntroTable();renderHitos();renderEstudios();renderIC();renderSint();
-  calcPerfil();
-  // Enfermedad
-  // Enfermedad actual
-  document.getElementById('enf-toggle').checked=S.enfActiva;
-  document.getElementById('enf-estado-label').textContent=S.enfActiva?'Activo':'Inactivo';
-  document.getElementById('enf-dx-field').style.display=S.enfActiva?'':'none';
-  document.getElementById('enf-sint-card').style.display=S.enfActiva?'':'none';
-  document.getElementById('enf-urg-card').style.display=S.enfActiva?'':'none';
-  // Médico: siempre ve el control de enfermedad
-  const mCtrl=document.getElementById('enf-medico-ctrl');
-  if(mCtrl){
-    if(S.role==='medico') mCtrl.classList.remove('sec-hidden');
-    else mCtrl.classList.add('sec-hidden');
-  }
-  // Familia: mostrar pestaña enfermedad solo si está activa
-  const sbEnf=document.getElementById('sb-enfermedad');
-  if(sbEnf) sbEnf.style.display=(S.role==='medico'||S.enfActiva)?'':'none';
-  // Médico: mostrar enf-activo, ocultar lock
-  if(S.role==='medico'){
-    document.getElementById('enf-lock').classList.add('sec-hidden');
-    document.getElementById('enf-activo').style.display='';
-  }
-  nav('perfil');
-}
-
-// ══════════════════════════════════════════════════════
-// FAMILIA: cargar paciente vinculado
-// ══════════════════════════════════════════════════════
-async function cargarPacienteFamilia(){
-  showSpinner(true);
-  try{
-    // Buscar el paciente donde familiaUid=S.uid
-    const snap=await window._db.collection('pacientes').where('familiaUid','==',S.uid).get();
-    if(snap.empty){showModal('Sin paciente vinculado','Tu cuenta aún no está vinculada a ningún paciente. Consultá con tu médico.');showSpinner(false);return;}
-    const d=snap.docs[0];
-    S.pacienteId=d.id;
-    await abrirPaciente(d.id);
-  }catch(e){console.error(e);}
-  showSpinner(false);
-}
-
-// ══════════════════════════════════════════════════════
-// CREAR NUEVO PACIENTE
-// ══════════════════════════════════════════════════════
-function abrirModalNuevoPaciente(){
-  ['np-nom','np-ape','np-fnac','np-wa','np-user','np-pass'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
-  const s=document.getElementById('np-sexo');if(s)s.value='';
-  document.getElementById('np-error').style.display='none';
-  document.getElementById('modal-nuevo-pac').classList.add('open');
-}
-
-async function confirmarNuevoPaciente(){
-  const nom=v('np-nom'),ape=v('np-ape');
-  if(!nom&&!ape){mostrarNpError('Ingresá al menos el nombre o apellido.');return;}
-  const email=v('np-user'),pass=v('np-pass');
-  if(email&&pass&&pass.length<6){mostrarNpError('La contraseña debe tener al menos 6 caracteres.');return;}
-  if(email&&!pass){mostrarNpError('Si ponés email familiar, también necesitás una contraseña.');return;}
-  showSpinner(true);
-  document.getElementById('modal-nuevo-pac').classList.remove('open');
-  waitFirebase(async()=>{
-    try{
-      let familiaUid=null;
-      // Crear usuario familia en Firebase Auth si tiene usuario/email
-      if(email&&pass){
-        const firebaseEmail=toFirebaseEmail(email);
-        const famCred=await window._auth.createUserWithEmailAndPassword(firebaseEmail,pass);
-        familiaUid=famCred.user.uid;
-        // Guardar rol familia
-        await fbSet(`usuarios/${familiaUid}`,{rol:'familia',email:firebaseEmail,usuario:email});
-        // Re-login como médico (crear usuario familia desloguea al médico)
-        await window._auth.signInWithEmailAndPassword(toFirebaseEmail(v('l-email')||S.user.email),v('l-pass')||'');
-        // (en producción guardar token o usar Admin SDK)
-      }
-      // Crear paciente en Firestore
-      const pacData={
-        nom,ape,
-        fnac:v('np-fnac'),sexo:v('np-sexo'),wa:v('np-wa'),
-        eg:'',pesoNac:'',tallaNac:'',pcNac:'',
-        usuario:email||'', // nombre legible (ej: garcia.valentina)
-        medicoId:S.uid,
-        familiaUid,
-        enfActiva:false,
-        creadoEn:new Date().toISOString(),
-      };
-      const id=await fbAdd('pacientes',pacData);
-      if(familiaUid)await fbSet(`usuarios/${familiaUid}`,{pacienteId:id,rol:'familia'});
-      pacientes.push({firestoreId:id,...pacData});
-      showSpinner(false);
-      showSyncBadge(true);
-      await abrirPaciente(id);
-    }catch(e){
-      showSpinner(false);
-      mostrarNpError('Error: '+e.message);
-      document.getElementById('modal-nuevo-pac').classList.add('open');
-    }
-  });
-}
-function mostrarNpError(msg){const e=document.getElementById('np-error');e.textContent=msg;e.style.display='block';}
-
-// ══════════════════════════════════════════════════════
-// GUARDAR PERFIL
-// ══════════════════════════════════════════════════════
-async function savePerfil(){
-  if(!S.pacienteId){showOk('p-ok');return;}
-  const data={nom:v('p-nom'),ape:v('p-ape'),fnac:v('p-fnac'),sexo:v('p-sexo'),wa:v('p-wa'),eg:v('p-eg'),pesoNac:v('p-peso-nac'),tallaNac:v('p-talla-nac'),pcNac:v('p-pc-nac')};
-  S.perfil={...S.perfil,...data};
-  try{await fbSet(`pacientes/${S.pacienteId}`,data);showSyncBadge(true);}catch{showSyncBadge(false);}
-  showOk('p-ok');
-  // Actualizar nombre en topbar
-  const nombre=((data.nom||'')+' '+(data.ape||'')).trim();
-  if(nombre){document.getElementById('tb-pac-nombre').textContent=nombre;}
-  // Actualizar lista local
-  if(pacienteActual!==null&&pacientes[pacienteActual])Object.assign(pacientes[pacienteActual],data);
-}
-
-async function saveNeo(){
-  if(!S.pacienteId){showOk('neo-ok');return;}
-  const data={'neo-i':document.getElementById('neo-i').checked,'neo-r':document.getElementById('neo-r').checked,'neo-o':document.getElementById('neo-o').checked,'neo-c':document.getElementById('neo-c').checked,'neo-inf':document.getElementById('neo-inf').checked,'neo-t':document.getElementById('neo-t').checked,dias:v('neo-dias')};
-  try{await fbSet(`pacientes/${S.pacienteId}/secciones/neonatal`,data);showSyncBadge(true);}catch{showSyncBadge(false);}
-  showOk('neo-ok');
-}
-
-// ══════════════════════════════════════════════════════
-// ANTROPOMETRÍA
-// ══════════════════════════════════════════════════════
-async function addAntro(){
-  const fecha=v('a-fecha'),peso=v('a-peso');
-  if(!fecha||!peso){showModal('Datos incompletos','Completá al menos fecha y peso.');return;}
-  const fnac=(v('p-fnac')||S.perfil.fnac||'').trim();
-  const eg=parseInt(v('p-eg')||S.perfil.eg||'0')||0;
-  const sexo=(v('p-sexo')||S.perfil.sexo||'').trim();
-  const pesoNum=parseFloat(peso),tallaNum=parseFloat(v('a-talla')||'0')||0,pcNum=parseFloat(v('a-pc')||'0')||0;
-  const mc=fnac?getMeses(fnac,fecha):null,mec=fnac&&eg?getMesesCorr(fnac,fecha,eg):null,mu=mec!==null?mec:(mc!==null?mc:0);
-  const wT=sexo==='M'?SP_W_M:SP_W_F,lT=sexo==='M'?SP_L_M:SP_L_F,hT=sexo==='M'?SP_HC_M:SP_HC_F;
-  const rec={fecha,peso,talla:v('a-talla'),pc:v('a-pc'),ppeso:pesoNum>0?sapLookup(wT,mu,pesoNum/1000):'—',ptalla:tallaNum>0?sapLookup(lT,mu,tallaNum):'—',ppc:pcNum>0?sapLookup(hT,mu,pcNum):'—',edad:document.getElementById('a-edad-calc').textContent,obs:v('a-obs'),ts:nowTS()};
-  if(S.pacienteId){
-    try{const id=await fbAdd(`pacientes/${S.pacienteId}/antro`,rec);rec.id=id;showSyncBadge(true);}catch{showSyncBadge(false);}
-  }
-  S.antro.push(rec);renderAntroTable();
-  ['a-peso','a-talla','a-pc','a-obs'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
-  document.getElementById('antro-pcts-live').style.display='none';
-}
-
-// ══════════════════════════════════════════════════════
-// DESARROLLO / HITOS
-// ══════════════════════════════════════════════════════
-async function addHito(){
-  const sel=document.getElementById('iodi-sel-'+S.iodi_cat);
-  const h=sel?sel.value:'';if(!h){showModal('Sin ítem','Seleccioná un ítem.');return;}
-  const catL={vincular:'Vínculo',social:'Social',motor:'Motricidad',cvmc:'Coordinación',comunicacion:'Lenguaje'};
-  const rec={h,cat:catL[S.iodi_cat]||S.iodi_cat,res:v('iodi-resultado')||'logrado',edad:v('iodi-edad'),obs:v('iodi-obs'),ts:nowTS()};
-  if(S.pacienteId){
-    try{const id=await fbAdd(`pacientes/${S.pacienteId}/hitos`,rec);rec.id=id;showSyncBadge(true);}catch{showSyncBadge(false);}
-  }
-  S.hitos.unshift(rec);renderHitos();if(sel)sel.value='';
-  ['iodi-edad','iodi-obs'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
-}
-
-// ══════════════════════════════════════════════════════
-// ESTUDIOS
-// ══════════════════════════════════════════════════════
-async function addEstudio(){
-  const tipo=v('est-tipo');if(!tipo){showModal('Falta tipo','Seleccioná el tipo.');return;}
-  const rec={tipo,fecha:v('est-fecha'),res:v('est-res'),inf:v('est-inf'),hall:v('est-hall'),ctrl:v('est-ctrl'),ts:nowTS()};
-  if(S.pacienteId){
-    try{const id=await fbAdd(`pacientes/${S.pacienteId}/estudios`,rec);rec.id=id;showSyncBadge(true);}catch{showSyncBadge(false);}
-  }
-  S.estudios.push(rec);renderEstudios();
-}
-
-// ══════════════════════════════════════════════════════
-// INTERCONSULTAS
-// ══════════════════════════════════════════════════════
-async function addIC(){
-  const esp=v('ic-esp');if(!esp){showModal('Falta especialidad','Seleccioná la especialidad.');return;}
-  const rec={esp,fecha:v('ic-fecha'),res:v('ic-res'),hall:v('ic-hall'),estSol:v('ic-est-sol'),estRes:v('ic-est-res'),prox:v('ic-prox'),ts:nowTS()};
-  if(S.pacienteId){
-    try{const id=await fbAdd(`pacientes/${S.pacienteId}/ic`,rec);rec.id=id;showSyncBadge(true);}catch{showSyncBadge(false);}
-  }
-  S.ic.push(rec);renderIC();
-}
-
-// ══════════════════════════════════════════════════════
-// ENFERMEDAD / SÍNTOMAS
-// ══════════════════════════════════════════════════════
-async function toggleEnf(){
-  const chk=document.getElementById('enf-toggle');
-  S.enfActiva=chk.checked;
-  document.getElementById('enf-estado-label').textContent=S.enfActiva?'Activo':'Inactivo';
-  document.getElementById('enf-dx-field').style.display=S.enfActiva?'':'none';
-  document.getElementById('enf-sint-card').style.display=S.enfActiva?'':'none';
-  document.getElementById('enf-urg-card').style.display=S.enfActiva?'':'none';
-  if(S.pacienteId){
-    try{await fbSet(`pacientes/${S.pacienteId}`,{enfActiva:S.enfActiva});showSyncBadge(true);}catch{showSyncBadge(false);}
-  }
-}
-
-async function guardarSint(){
-  const datos=getSintData();
-  if(!datos.length){showModal('Sin datos','Marcá al menos un síntoma.');return;}
-  const rec={datos,fecha:new Date().toLocaleString('es-AR')};
-  if(S.pacienteId){
-    try{const id=await fbAdd(`pacientes/${S.pacienteId}/sintomas`,rec);rec.id=id;showSyncBadge(true);}catch{showSyncBadge(false);}
-  }
-  S.sintomas.unshift(rec);renderSint();
-  document.querySelectorAll('.sint-chk').forEach(c=>c.checked=false);
-  document.querySelectorAll('.sint-detail').forEach(d=>d.classList.remove('open'));
-  document.querySelectorAll('.sint-detail input,.sint-detail select').forEach(e=>e.value='');
-  showModal('Registro guardado','Si la situación empeora, acudí a guardia.');
-}
-
-// ══════════════════════════════════════════════════════
-// RENDER FUNCIONES
-// ══════════════════════════════════════════════════════
-function cargarPerfilEnDOM(p){
-  ['nom','ape','fnac','sexo','wa','eg'].forEach(k=>{const el=document.getElementById('p-'+k);if(el)el.value=p[k]||'';});
-  document.getElementById('p-peso-nac').value=p.pesoNac||'';
-  document.getElementById('p-talla-nac').value=p.tallaNac||'';
-  document.getElementById('p-pc-nac').value=p.pcNac||'';
-  calcPerfil();
-}
-
-function renderAntroTable(){
-  const tb=document.getElementById('antro-tbody');
-  if(!S.antro.length){tb.innerHTML='<tr><td colspan="9" style="text-align:center;padding:1.5rem;color:var(--muted)">Sin registros</td></tr>';return;}
-  tb.innerHTML=S.antro.map(r=>`<tr><td>${fd(r.fecha)}</td><td style="font-size:11px">${r.edad||'—'}</td><td>${r.peso||'—'}</td><td>${ptag(r.ppeso)}</td><td>${r.talla||'—'}</td><td>${ptag(r.ptalla)}</td><td>${r.pc||'—'}</td><td>${ptag(r.ppc)}</td><td style="font-size:11px;max-width:100px">${r.obs||'—'}</td></tr>`).join('');
-}
-
-function renderHitos(){
-  const el=document.getElementById('hitos-list');
-  if(!S.hitos.length){el.innerHTML='<div class="empty"><span class="empty-icon">🧠</span>Sin registros</div>';return;}
-  const rL={logrado:'Lo hace',preguntado:'Refiere familia',seguimiento:'En seguimiento'};
-  el.innerHTML=S.hitos.map(h=>`<div class="hito-item"><div class="hdot ${h.res==='logrado'?'dg':h.res==='preguntado'?'db':'da'}"></div><div style="flex:1"><div style="font-size:13px">${h.h}</div><div style="font-size:11px;color:var(--muted)">${h.cat} · ${h.ts}${h.obs?' · '+h.obs:''}</div></div><span class="tag ${h.res==='logrado'?'tg':h.res==='preguntado'?'tb2':'ta'}" style="font-size:11px">${rL[h.res]}</span></div>`).join('');
-}
-
-function renderEstudios(){
-  const el=document.getElementById('est-list');
-  if(!S.estudios.length){el.innerHTML='<div class="empty"><span class="empty-icon">🔬</span>Sin estudios</div>';return;}
-  el.innerHTML=S.estudios.map(e=>`<div style="border:0.5px solid var(--border);border-radius:var(--r-sm);padding:.8rem;margin-bottom:.45rem;background:var(--surface)"><div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:.3rem"><span style="font-weight:600;font-size:13px">${e.tipo}</span><span class="tag ${e.res==='normal'?'tg':e.res==='patologico'?'tr':'ta'}" style="font-size:11px">${rl(e.res)}</span><span style="margin-left:auto;font-size:11px;color:var(--muted)">${fd(e.fecha)}</span></div>${e.inf?`<div style="font-size:12px;color:var(--muted)">${e.inf}</div>`:''}${e.hall?`<div style="font-size:12px;color:var(--red-d);margin-top:.3rem">⚠️ ${e.hall}</div>`:''}${e.ctrl?`<div style="font-size:11px;color:var(--muted);margin-top:.3rem">📅 Próx: ${fd(e.ctrl)}</div>`:''}</div>`).join('');
-}
-
-function renderIC(){
-  const el=document.getElementById('ic-list');
-  if(!S.ic.length){el.innerHTML='<div class="empty"><span class="empty-icon">👥</span>Sin interconsultas</div>';return;}
-  el.innerHTML=S.ic.map(ic=>`<div style="border:0.5px solid var(--border);border-radius:var(--r-sm);padding:.8rem;margin-bottom:.45rem;background:var(--surface)"><div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:.3rem"><span class="tag tp" style="font-size:11px">${ic.esp}</span><span class="tag ${ic.res==='normal'?'tg':ic.res==='patologico'?'tr':'tgr'}" style="font-size:11px">${rl(ic.res)}</span><span style="margin-left:auto;font-size:11px;color:var(--muted)">${fd(ic.fecha)}</span></div>${ic.hall?`<div style="font-size:12px;color:var(--red-d)">⚠️ ${ic.hall}</div>`:''}${ic.prox?`<div style="font-size:11px;margin-top:.3rem;color:var(--muted)">📅 Próx: ${fd(ic.prox)}</div>`:''}</div>`).join('');
-}
-
-function renderSint(){
-  const el=document.getElementById('sint-historial');
-  if(!S.sintomas.length){el.innerHTML='<div class="empty"><span class="empty-icon">📋</span>Sin registros</div>';return;}
-  el.innerHTML=S.sintomas.map(s=>`<div style="border:0.5px solid var(--border);border-radius:var(--r-sm);padding:.8rem;margin-bottom:.45rem;background:var(--surface)"><div style="font-size:11px;color:var(--muted);margin-bottom:.5rem;font-weight:500">${s.fecha}</div>${s.datos.map(d=>`<div style="margin-bottom:.4rem"><div style="display:flex;align-items:center;gap:.4rem;flex-wrap:wrap"><span class="tag ${d.urgente?'tr':'ta'}" style="font-size:11px">${d.label}</span>${Object.values(d.details||{}).map(val=>`<span style="font-size:11px;color:var(--muted)">${val}</span>`).join(' · ')}</div></div>`).join('')}</div>`).join('');
-}
-
-// ══════════════════════════════════════════════════════
-// NAV
-// ══════════════════════════════════════════════════════
-function nav(sec){
-  document.querySelectorAll('#main-clinico section').forEach(s=>s.classList.add('sec-hidden'));
-  const el=document.getElementById('sec-'+sec);if(el)el.classList.remove('sec-hidden');
-  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
-  document.querySelectorAll(`.sb-item[data-sec="${sec}"]`).forEach(i=>i.classList.add('active'));
-  if(sec==='graficos')setTimeout(()=>renderChart('chart-main'),50);
-  if(sec==='exportar')setTimeout(()=>{updatePrint();renderChart('chart-print');},50);
-  if(sec==='enfermedad'){const fc=document.getElementById('enf-fecha-carga');if(fc){const a=new Date();fc.textContent='Registro del: '+a.toLocaleDateString('es-AR',{weekday:'long',year:'numeric',month:'long',day:'numeric'})+' — '+a.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});}}
-}
-
-// ══════════════════════════════════════════════════════
-// TABLAS PERCENTILES (idénticas a v3)
-// ══════════════════════════════════════════════════════
+// ═══ INTERGROWTH-21 ═══
 const IG_PW_M={24:[0.44,0.46,0.50,0.64,0.82,0.88,0.92],25:[0.51,0.53,0.57,0.73,0.93,1.00,1.05],26:[0.58,0.60,0.65,0.83,1.06,1.14,1.20],27:[0.66,0.69,0.74,0.95,1.21,1.30,1.36],28:[0.75,0.78,0.84,1.07,1.37,1.47,1.54],29:[0.84,0.88,0.95,1.21,1.56,1.67,1.75],30:[0.95,1.00,1.07,1.37,1.76,1.89,1.97],31:[1.08,1.13,1.21,1.55,1.98,2.13,2.23],32:[1.21,1.27,1.36,1.74,2.23,2.39,2.50],33:[1.18,1.28,1.43,1.95,2.52,2.70,2.82],34:[1.45,1.55,1.71,2.22,2.79,2.96,3.08],35:[1.70,1.80,1.95,2.47,3.03,3.20,3.32],36:[1.93,2.03,2.18,2.69,3.25,3.42,3.54],37:[2.13,2.24,2.38,2.89,3.45,3.62,3.74],38:[2.32,2.42,2.57,3.07,3.63,3.80,3.92],39:[2.49,2.59,2.73,3.24,3.79,3.96,4.08],40:[2.63,2.73,2.88,3.38,3.94,4.11,4.22],41:[2.76,2.86,3.01,3.51,4.06,4.23,4.35],42:[2.88,2.98,3.12,3.62,4.17,4.34,4.46]};
 const IG_PW_F={24:[0.42,0.44,0.47,0.60,0.77,0.83,0.87],25:[0.48,0.50,0.54,0.69,0.88,0.95,0.99],26:[0.55,0.57,0.61,0.78,1.01,1.08,1.13],27:[0.62,0.65,0.70,0.89,1.14,1.23,1.28],28:[0.70,0.74,0.79,1.01,1.30,1.39,1.46],29:[0.80,0.83,0.90,1.15,1.47,1.58,1.65],30:[0.90,0.94,1.01,1.30,1.66,1.78,1.86],31:[1.02,1.06,1.14,1.46,1.87,2.01,2.10],32:[1.14,1.20,1.28,1.64,2.11,2.26,2.37],33:[1.20,1.29,1.41,1.86,2.35,2.51,2.61],34:[1.47,1.55,1.68,2.13,2.64,2.79,2.90],35:[1.71,1.79,1.92,2.38,2.89,3.05,3.16],36:[1.92,2.01,2.14,2.60,3.12,3.28,3.39],37:[2.11,2.20,2.33,2.80,3.32,3.49,3.60],38:[2.28,2.37,2.50,2.97,3.51,3.67,3.78],39:[2.42,2.51,2.65,3.13,3.66,3.83,3.94],40:[2.55,2.64,2.78,3.26,3.80,3.97,4.08],41:[2.65,2.75,2.89,3.37,3.92,4.09,4.20],42:[2.74,2.84,2.98,3.46,4.01,4.19,4.30]};
 const IG_LN_M={24:[27.3,27.9,28.9,32.2,35.5,36.5,37.1],25:[28.6,29.2,30.2,33.5,36.8,37.8,38.4],26:[29.9,30.5,31.4,34.8,38.1,39.0,39.6],27:[31.1,31.7,32.7,36.0,39.4,40.3,40.9],28:[32.4,33.0,34.0,37.3,40.6,41.6,42.2],29:[33.7,34.3,35.2,38.6,41.9,42.8,43.5],30:[34.9,35.6,36.5,39.8,43.2,44.1,44.7],31:[36.2,36.8,37.8,41.1,44.4,45.4,46.0],32:[37.5,38.1,39.0,42.4,45.7,46.7,47.3],33:[39.7,40.3,41.1,43.8,46.6,47.4,48.0],34:[41.1,41.6,42.4,45.0,47.6,48.4,48.9],35:[42.3,42.8,43.5,46.0,48.5,49.3,49.8],36:[43.4,43.9,44.6,46.9,49.3,50.1,50.6],37:[44.4,44.9,45.5,47.8,50.0,50.8,51.3],38:[45.3,45.7,46.4,48.6,50.7,51.5,52.0],39:[46.1,46.5,47.2,49.3,51.3,52.0,52.5],40:[46.9,47.3,47.9,50.0,52.0,52.7,53.1],41:[47.5,47.9,48.5,50.6,52.5,53.2,53.7],42:[48.1,48.5,49.1,51.2,53.1,53.8,54.3]};
 const IG_LN_F={24:[26.9,27.5,28.4,31.7,34.9,35.9,36.5],25:[28.2,28.8,29.6,33.0,36.3,37.2,37.8],26:[29.5,30.1,30.9,34.3,37.6,38.5,39.1],27:[30.7,31.3,32.1,35.5,38.9,39.8,40.4],28:[32.0,32.5,33.3,36.8,40.2,41.1,41.7],29:[33.2,33.7,34.5,38.1,41.5,42.4,43.0],30:[34.4,35.0,35.7,39.3,42.7,43.6,44.2],31:[35.6,36.2,36.9,40.5,44.0,44.8,45.4],32:[36.8,37.3,38.0,41.7,45.2,46.0,46.6],33:[39.0,39.5,40.1,43.0,46.0,46.8,47.3],34:[40.3,40.7,41.4,44.1,47.0,47.7,48.2],35:[41.5,41.9,42.5,45.2,47.9,48.6,49.1],36:[42.6,43.0,43.6,46.2,48.8,49.5,49.9],37:[43.6,44.0,44.6,47.1,49.6,50.3,50.7],38:[44.5,44.9,45.5,47.9,50.4,51.0,51.5],39:[45.4,45.7,46.3,48.8,51.2,51.8,52.2],40:[46.2,46.6,47.1,49.5,51.9,52.5,52.9],41:[46.9,47.3,47.8,50.2,52.6,53.2,53.6],42:[47.6,48.0,48.5,50.9,53.3,53.8,54.2]};
 const IG_HC_M={24:[19.9,20.2,20.7,22.5,24.3,24.8,25.2],25:[20.9,21.2,21.7,23.6,25.4,26.0,26.3],26:[21.9,22.2,22.7,24.6,26.5,27.1,27.4],27:[22.9,23.2,23.8,25.7,27.6,28.2,28.5],28:[23.9,24.2,24.8,26.8,28.7,29.3,29.7],29:[24.9,25.2,25.8,27.8,29.8,30.4,30.8],30:[25.8,26.2,26.8,28.8,30.8,31.4,31.8],31:[26.8,27.1,27.7,29.8,31.8,32.4,32.8],32:[27.7,28.0,28.6,30.7,32.8,33.4,33.8],33:[29.3,29.6,30.1,32.0,33.9,34.4,34.7],34:[30.0,30.3,30.7,32.6,34.4,34.9,35.2],35:[30.7,30.9,31.4,33.2,35.0,35.4,35.7],36:[31.3,31.6,32.0,33.8,35.5,36.0,36.2],37:[31.9,32.2,32.6,34.4,36.1,36.5,36.8],38:[32.5,32.7,33.1,34.9,36.7,37.1,37.3],39:[33.0,33.2,33.7,35.4,37.1,37.5,37.8],40:[33.5,33.7,34.2,35.9,37.6,38.0,38.3],41:[33.9,34.2,34.6,36.4,38.1,38.5,38.7],42:[34.3,34.6,35.0,36.8,38.5,38.9,39.2]};
 const IG_HC_F={24:[19.6,19.9,20.4,22.2,24.0,24.5,24.9],25:[20.6,20.9,21.4,23.2,25.1,25.6,26.0],26:[21.5,21.8,22.3,24.2,26.1,26.6,27.0],27:[22.5,22.8,23.3,25.2,27.1,27.7,28.0],28:[23.4,23.7,24.3,26.2,28.1,28.7,29.1],29:[24.3,24.7,25.2,27.2,29.1,29.7,30.1],30:[25.2,25.6,26.1,28.1,30.1,30.7,31.1],31:[26.1,26.5,27.0,29.0,31.0,31.6,32.0],32:[27.0,27.4,27.9,29.9,31.9,32.5,32.9],33:[28.6,28.9,29.4,31.3,33.2,33.7,34.1],34:[29.3,29.6,30.1,32.0,33.8,34.3,34.6],35:[30.0,30.3,30.7,32.6,34.4,34.9,35.2],36:[30.6,30.9,31.3,33.2,35.0,35.4,35.7],37:[31.2,31.5,31.9,33.8,35.6,36.0,36.3],38:[31.8,32.0,32.5,34.4,36.2,36.6,36.9],39:[32.3,32.6,33.0,34.9,36.7,37.1,37.4],40:[32.8,33.1,33.5,35.4,37.2,37.6,37.9],41:[33.3,33.6,34.0,35.9,37.7,38.1,38.4],42:[33.7,34.0,34.4,36.3,38.1,38.5,38.8]};
+// SAP postnatal P3,P10,P50,P90,P97 por mes
 const SP_W_M={0:[2.5,2.9,3.3,4.4,5.0],1:[3.4,3.9,4.5,5.8,6.3],2:[4.4,5.0,5.6,7.1,7.7],3:[5.1,5.7,6.4,7.9,8.5],4:[5.6,6.2,7.0,8.6,9.3],5:[6.1,6.7,7.5,9.2,9.9],6:[6.4,7.1,7.9,9.7,10.4],7:[6.7,7.4,8.3,10.2,10.9],8:[7.0,7.7,8.6,10.5,11.3],9:[7.2,8.0,8.9,10.9,11.7],10:[7.5,8.2,9.2,11.3,12.1],11:[7.7,8.4,9.4,11.6,12.4],12:[7.8,8.6,9.6,11.9,12.7],15:[8.2,9.1,10.3,12.8,13.6],18:[8.8,9.7,11.0,13.7,14.6],24:[9.7,10.8,12.2,15.1,16.1],36:[11.2,12.4,14.3,17.9,19.1]};
 const SP_W_F={0:[2.4,2.8,3.2,4.2,4.7],1:[3.2,3.6,4.2,5.5,6.0],2:[4.0,4.5,5.1,6.6,7.2],3:[4.7,5.2,5.8,7.5,8.2],4:[5.1,5.7,6.4,8.2,8.9],5:[5.5,6.1,6.9,8.8,9.6],6:[5.8,6.5,7.3,9.3,10.1],7:[6.1,6.8,7.6,9.8,10.7],8:[6.3,7.0,7.9,10.2,11.1],9:[6.5,7.3,8.2,10.6,11.5],10:[6.7,7.5,8.5,10.9,11.9],11:[6.9,7.7,8.7,11.2,12.2],12:[7.0,7.8,8.9,11.5,12.6],15:[7.6,8.5,9.6,12.5,13.7],18:[8.2,9.1,10.2,13.2,14.6],24:[9.0,10.0,11.5,15.0,16.5],36:[10.8,12.0,13.9,18.0,19.8]};
 const SP_L_M={0:[46.1,47.5,49.9,53.4,54.7],1:[50.8,52.8,54.7,58.4,59.7],2:[54.4,56.4,58.4,62.2,63.5],3:[57.3,59.4,61.4,65.3,66.6],4:[59.7,61.8,63.9,67.8,69.2],5:[61.7,63.8,65.9,69.9,71.3],6:[63.3,65.5,67.6,71.6,73.0],7:[64.8,67.0,69.2,73.2,74.7],8:[66.2,68.4,70.6,74.7,76.2],9:[67.5,69.7,72.0,76.1,77.7],10:[68.7,70.9,73.3,77.4,79.0],11:[69.9,72.2,74.5,78.6,80.2],12:[71.0,73.4,75.7,79.9,81.5],15:[74.0,76.5,79.1,83.5,85.1],18:[76.9,79.5,82.3,87.0,88.7],24:[82.3,85.1,88.0,93.0,94.8],36:[88.7,91.9,96.1,102.1,104.2]};
@@ -991,51 +692,411 @@ const SP_L_F={0:[45.4,46.8,49.1,52.7,54.0],1:[49.8,51.7,53.7,57.4,58.7],2:[53.0,
 const SP_HC_M={0:[32.1,33.0,34.5,36.4,37.0],1:[35.1,36.1,37.3,39.1,39.7],2:[37.0,38.0,39.1,40.9,41.5],3:[38.3,39.3,40.4,42.2,42.8],4:[39.3,40.2,41.3,43.1,43.7],5:[40.1,41.0,42.1,43.8,44.4],6:[40.8,41.7,42.8,44.5,45.1],7:[41.4,42.3,43.4,45.1,45.7],8:[42.0,42.9,43.9,45.6,46.2],9:[42.5,43.4,44.4,46.1,46.7],10:[42.9,43.8,44.9,46.6,47.2],11:[43.3,44.2,45.2,47.0,47.6],12:[43.6,44.5,45.6,47.3,47.9],18:[45.0,46.0,47.0,48.8,49.4],24:[45.8,46.8,47.9,49.7,50.3],36:[46.9,47.9,49.0,50.8,51.4]};
 const SP_HC_F={0:[31.9,32.8,34.0,35.9,36.5],1:[34.7,35.7,36.9,38.7,39.3],2:[36.4,37.4,38.6,40.4,41.0],3:[37.6,38.6,39.8,41.6,42.2],4:[38.6,39.6,40.7,42.5,43.1],5:[39.4,40.4,41.5,43.3,43.9],6:[40.2,41.1,42.2,44.0,44.6],7:[40.8,41.8,42.8,44.6,45.2],8:[41.4,42.3,43.4,45.2,45.8],9:[41.9,42.9,43.9,45.7,46.3],10:[42.4,43.3,44.4,46.2,46.8],11:[42.8,43.8,44.8,46.6,47.2],12:[43.2,44.2,45.2,47.0,47.6],18:[44.6,45.6,46.7,48.5,49.1],24:[45.5,46.5,47.6,49.4,50.0],36:[46.7,47.7,48.8,50.6,51.2]};
 
-function igLookup(tbl,eg,val){if(!tbl||!tbl[eg])return'—';const r=tbl[eg];if(val<r[0])return'bajP3';if(val>=r[6])return'sobP97';const L=['P3','P3-P5','P5-P10','P10-P50','P50-P90','P90-P97','sobP97'];for(let i=0;i<r.length-1;i++)if(val>=r[i]&&val<r[i+1])return L[i];return'sobP97';}
-function sapLookup(tbl,m,val){const keys=Object.keys(tbl).map(Number).sort((a,b)=>a-b);let best=keys[0];for(const k of keys)if(k<=m)best=k;const r=tbl[best];if(val<r[0])return'bajP3';if(val<r[1])return'P3-P10';if(val<r[2])return'P10-P50';if(val<r[3])return'P50-P90';if(val<r[4])return'P90-P97';return'sobP97';}
-function pcCls(p){if(!p||p==='—')return'tgr';if(p==='bajP3'||p==='P3'||p==='P3-P5'||p==='P5-P10'||p==='P3-P10')return'ta';if(p==='sobP97'||p==='P90-P97')return'ta';return'tg';}
-function ptag(p){if(!p||p==='—')return'—';const label={'bajP3':'&lt;P3','sobP97':'&gt;P97'}[p]||p;return`<span class="tag ${pcCls(p)}" style="font-size:11px">${label}</span>`;}
+function igLookup(tbl,eg,val){
+  if(!tbl||!tbl[eg])return'—';const r=tbl[eg];
+  if(val<r[0])return'bajP3';if(val>=r[6])return'sobP97';
+  const L=['P3','P3-P5','P5-P10','P10-P50','P50-P90','P90-P97','sobP97'];
+  for(let i=0;i<r.length-1;i++)if(val>=r[i]&&val<r[i+1])return L[i];return'sobP97';
+}
+function sapLookup(tbl,m,val){
+  const keys=Object.keys(tbl).map(Number).sort((a,b)=>a-b);
+  let best=keys[0];for(const k of keys)if(k<=m)best=k;
+  const r=tbl[best];
+  if(val<r[0])return'bajP3';if(val<r[1])return'P3-P10';if(val<r[2])return'P10-P50';if(val<r[3])return'P50-P90';if(val<r[4])return'P90-P97';return'sobP97';
+}
+function pcCls(p){
+  if(!p||p==='—')return'tgr';
+  if(p==='bajP3'||p==='P3'||p==='P3-P5'||p==='P5-P10'||p==='P3-P10')return'ta';
+  if(p==='sobP97'||p==='P90-P97'||p==='P90-P96')return'ta';
+  return'tg';
+}
+function ptag(p){
+  if(!p||p==='—')return'—';
+  const label={'bajP3':'&lt;P3','sobP97':'&gt;P97'}[p]||p;
+  return`<span class="tag ${pcCls(p)}" style="font-size:11px">${label}</span>`;
+}
+function v(id){const e=document.getElementById(id);return e?e.value.trim():'';}
+function fd(d){if(!d)return'—';try{return new Date(d+'T00:00:00').toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});}catch{return d;}}
+function nowTS(){return new Date().toLocaleString('es-AR',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'});}
+function rl(r){return{normal:'Normal',patologico:'Patológico',pendiente:'Pendiente'}[r]||r||'—';}
+function showOk(id){const e=document.getElementById(id);if(!e)return;e.style.display='flex';setTimeout(()=>e.style.display='none',3e3);}
+function showModal(t,c){document.getElementById('m-title').textContent=t;document.getElementById('m-body').innerHTML=`<p style="font-size:14px;line-height:1.6;color:var(--muted)">${c}</p>`;document.getElementById('modal').classList.add('open');}
 
-function getMeses(fnac,fecha){if(!fnac||!fecha)return null;const n=new Date(fnac),d=new Date(fecha);let m=(d.getFullYear()-n.getFullYear())*12+(d.getMonth()-n.getMonth());if(d.getDate()<n.getDate())m--;return Math.max(0,m);}
-function getMesesCorr(fnac,fecha,eg){if(!eg||eg>=37)return null;const n=new Date(fnac),corr=new Date(n.getTime()+(37-eg)*7*86400000),d=new Date(fecha);let m=(d.getFullYear()-corr.getFullYear())*12+(d.getMonth()-corr.getMonth());if(d.getDate()<corr.getDate())m--;m=Math.max(0,m);return m<=24?m:null;}
-function edadStr(fnac,fecha,eg){const mc=getMeses(fnac,fecha);if(mc===null)return'';const a=Math.floor(mc/12),m=mc%12;let txt=`${a>0?a+'a ':''} ${m}m`;const ec=getMesesCorr(fnac,fecha,parseInt(eg)||0);if(ec!==null){const ea=Math.floor(ec/12),em=ec%12;txt+=` · corr: ${ea>0?ea+'a ':''} ${em}m`;}return txt.trim();}
-function calcEdadStr(fnac){if(!fnac)return'';try{const n=new Date(fnac),h=new Date();let m=(h.getFullYear()-n.getFullYear())*12+(h.getMonth()-n.getMonth());if(h.getDate()<n.getDate())m--;m=Math.max(0,m);const a=Math.floor(m/12),mr=m%12;return a>0?(a+'a '+mr+'m'):(m+'m');}catch{return'';}}
-
-function calcPerfil(){
-  const eg=parseInt(v('p-eg'))||0,sexo=v('p-sexo'),fnac=v('p-fnac');
-  S.perfil.fnac=fnac||S.perfil.fnac||'';S.perfil.sexo=sexo||S.perfil.sexo||'';S.perfil.eg=eg?String(eg):(S.perfil.eg||'');
-  if(fnac){const hoy=new Date(),n=new Date(fnac);let mc=(hoy.getFullYear()-n.getFullYear())*12+(hoy.getMonth()-n.getMonth());if(hoy.getDate()<n.getDate())mc--;mc=Math.max(0,mc);const a=Math.floor(mc/12),m=mc%12;let txt=`Edad: <strong>${a>0?a+'a ':''} ${m}m</strong>`;const ec=getMesesCorr(fnac,hoy.toISOString().split('T')[0],eg);if(ec!==null){const ea=Math.floor(ec/12),em=ec%12;txt+=` · Edad corregida: <strong>${ea>0?ea+'a ':''} ${em}m</strong>`;}const d=document.getElementById('edad-display');d.style.display='block';d.innerHTML=txt;}
-  const el=document.getElementById('pc-nac-badges');if(!sexo||!eg||eg<24||eg>42){el.innerHTML='<span style="font-size:12px;color:var(--muted)">Ingresá EG (24–42) y sexo</span>';return;}
-  const wT=sexo==='M'?IG_PW_M:IG_PW_F,lT=sexo==='M'?IG_LN_M:IG_LN_F,hT=sexo==='M'?IG_HC_M:IG_HC_F;
-  const peso=parseFloat(v('p-peso-nac'))||0,talla=parseFloat(v('p-talla-nac'))||0,pc=parseFloat(v('p-pc-nac'))||0;
-  let html='';
-  if(peso)html+=`<span class="tag ${pcCls(igLookup(wT,eg,peso/1000))}">Peso: ${ptag(igLookup(wT,eg,peso/1000)).replace(/<[^>]*>/g,'')||igLookup(wT,eg,peso/1000)}</span>`;
-  if(talla)html+=`<span class="tag ${pcCls(igLookup(lT,eg,talla))}">Talla: ${igLookup(lT,eg,talla)}</span>`;
-  if(pc)html+=`<span class="tag ${pcCls(igLookup(hT,eg,pc))}">PC: ${igLookup(hT,eg,pc)}</span>`;
-  el.innerHTML=html||'<span style="font-size:12px;color:var(--muted)">Ingresá medidas</span>';
+// EDADES
+function getMeses(fnac,fecha){
+  if(!fnac||!fecha)return null;
+  const n=new Date(fnac),d=new Date(fecha);
+  let m=(d.getFullYear()-n.getFullYear())*12+(d.getMonth()-n.getMonth());
+  if(d.getDate()<n.getDate())m--;return Math.max(0,m);
+}
+function getMesesCorr(fnac,fecha,eg){
+  if(!eg||eg>=37)return null;
+  const n=new Date(fnac),corr=new Date(n.getTime()+(37-eg)*7*86400000);
+  let m=(new Date(fecha).getFullYear()-corr.getFullYear())*12+(new Date(fecha).getMonth()-corr.getMonth());
+  if(new Date(fecha).getDate()<corr.getDate())m--;m=Math.max(0,m);return m<=24?m:null;
+}
+function edadStr(fnac,fecha,eg){
+  const mc=getMeses(fnac,fecha);if(mc===null)return'';
+  const a=Math.floor(mc/12),m=mc%12;
+  let txt=`${a>0?a+'a ':''}${m}m`;
+  const ec=getMesesCorr(fnac,fecha,parseInt(eg)||0);
+  if(ec!==null){const ea=Math.floor(ec/12),em=ec%12;txt+=` · corr: ${ea>0?ea+'a ':''}${em}m`;}
+  return txt.trim();
 }
 
+// CÁLCULO PERFIL
+function calcPerfil(){
+  const eg=parseInt(v('p-eg'))||0,sexo=v('p-sexo'),fnac=v('p-fnac');
+  // Guardar SIEMPRE en S.perfil (incluso si está vacío, para sincronizar)
+  S.perfil.fnac=fnac||S.perfil.fnac||'';
+  S.perfil.sexo=sexo||S.perfil.sexo||'';
+  S.perfil.eg=eg?String(eg):(S.perfil.eg||'');
+  const peso=parseFloat(v('p-peso-nac'))||0,talla=parseFloat(v('p-talla-nac'))||0,pc=parseFloat(v('p-pc-nac'))||0;
+  // Edad hoy
+  if(fnac){
+    const hoy=new Date(),n=new Date(fnac);
+    let mc=(hoy.getFullYear()-n.getFullYear())*12+(hoy.getMonth()-n.getMonth());
+    if(hoy.getDate()<n.getDate())mc--;mc=Math.max(0,mc);
+    const a=Math.floor(mc/12),m=mc%12;
+    let txt=`Edad: <strong>${a>0?a+'a ':''}${m}m</strong>`;
+    const fechaHoy=hoy.toISOString().split('T')[0];
+    const ec=getMesesCorr(fnac,fechaHoy,eg);
+    if(ec!==null){const ea=Math.floor(ec/12),em=ec%12;txt+=` · Edad corregida: <strong>${ea>0?ea+'a ':''}${em}m</strong>`;}
+    const d=document.getElementById('edad-display');d.style.display='block';d.innerHTML=txt;
+  }
+  const el=document.getElementById('pc-nac-badges');
+  if(!sexo||!eg||eg<24||eg>42){el.innerHTML='<span style="font-size:12px;color:var(--muted)">Ingresá EG (24–42) y sexo</span>';return;}
+  const wT=sexo==='M'?IG_PW_M:IG_PW_F,lT=sexo==='M'?IG_LN_M:IG_LN_F,hT=sexo==='M'?IG_HC_M:IG_HC_F;
+  let html='';
+  if(peso)html+=`<span class="tag ${pcCls(igLookup(wT,eg,peso/1000))}">Peso: ${igLookup(wT,eg,peso/1000)}</span>`;
+  if(talla)html+=`<span class="tag ${pcCls(igLookup(lT,eg,talla))}">Talla: ${igLookup(lT,eg,talla)}</span>`;
+  if(pc)html+=`<span class="tag ${pcCls(igLookup(hT,eg,pc))}">PC: ${igLookup(hT,eg,pc)}</span>`;
+  el.innerHTML=html||'<span style="font-size:12px;color:var(--muted)">Ingresá las medidas</span>';
+}
+
+// ANTRO LIVE
 function calcAntroLive(){
-  const fnac=(v('p-fnac')||S.perfil.fnac||'').trim(),eg=parseInt(v('p-eg')||S.perfil.eg||'0')||0,sexo=(v('p-sexo')||S.perfil.sexo||'').trim(),fecha=v('a-fecha');
-  const peso=parseFloat(v('a-peso')||'0')||0,talla=parseFloat(v('a-talla')||'0')||0,pc=parseFloat(v('a-pc')||'0')||0;
+  const fnac=(v('p-fnac')||S.perfil.fnac||'').trim();
+  const eg=parseInt(v('p-eg')||S.perfil.eg||'0')||0;
+  const sexo=(v('p-sexo')||S.perfil.sexo||'').trim();
+  const fecha=v('a-fecha');
+  const peso=parseFloat(v('a-peso')||'0')||0;
+  const talla=parseFloat(v('a-talla')||'0')||0;
+  const pc=parseFloat(v('a-pc')||'0')||0;
   const div=document.getElementById('antro-pcts-live');
   if(!peso&&!talla&&!pc){div.style.display='none';return;}
   div.style.display='block';
-  const mc=getMeses(fnac,fecha),mec=getMesesCorr(fnac,fecha,eg),mu=mec!==null?mec:(mc!==null?mc:0);
+  const mc=getMeses(fnac,fecha),mec=getMesesCorr(fnac,fecha,eg),mu=mec!==null?mec:(mc||0);
   const wT=sexo==='M'?SP_W_M:SP_W_F,lT=sexo==='M'?SP_L_M:SP_L_F,hT=sexo==='M'?SP_HC_M:SP_HC_F;
   let html='';
-  if(sexo){if(peso)html+=`<span class="tag ${pcCls(sapLookup(wT,mu,peso/1000))}">Peso: ${ptag(sapLookup(wT,mu,peso/1000)).replace(/<[^>]*>/g,'')||sapLookup(wT,mu,peso/1000)}</span>`;if(talla)html+=`<span class="tag ${pcCls(sapLookup(lT,mu,talla))}">Talla: ${sapLookup(lT,mu,talla)}</span>`;if(pc)html+=`<span class="tag ${pcCls(sapLookup(hT,mu,pc))}">PC: ${sapLookup(hT,mu,pc)}</span>`;}
-  else html='<span style="font-size:12px;color:var(--muted)">Cargá sexo en Perfil</span>';
+  if(sexo){
+    if(peso)html+=`<span class="tag ${pcCls(sapLookup(wT,mu,peso/1000))}">Peso: ${sapLookup(wT,mu,peso/1000)}</span>`;
+    if(talla)html+=`<span class="tag ${pcCls(sapLookup(lT,mu,talla))}">Talla: ${sapLookup(lT,mu,talla)}</span>`;
+    if(pc)html+=`<span class="tag ${pcCls(sapLookup(hT,mu,pc))}">PC: ${sapLookup(hT,mu,pc)}</span>`;
+  } else {
+    // Sin sexo: usar tabla F como base (más conservadora) e indicarlo
+    if(peso)html+=`<span class="tag tgr">Peso: ${sapLookup(SP_W_F,mu,peso/1000)} <i style='font-size:10px'>(sin sexo)</i></span>`;
+    if(talla)html+=`<span class="tag tgr">Talla: ${sapLookup(SP_L_F,mu,talla)} <i style='font-size:10px'>(sin sexo)</i></span>`;
+    if(pc)html+=`<span class="tag tgr">PC: ${sapLookup(SP_HC_F,mu,pc)} <i style='font-size:10px'>(sin sexo)</i></span>`;
+  }
   document.getElementById('antro-pcts-badges').innerHTML=html;
   document.getElementById('antro-ref-label').textContent='Ref: SAP/OMS · Edad: '+(mec!==null?'corregida ('+mec+'m)':'cronológica ('+(mc||0)+'m)');
 }
+function autoEdad(){
+  const el=document.getElementById('a-edad-calc'),fecha=v('a-fecha'),fnac=v('p-fnac')||S.perfil.fnac||'',eg=v('p-eg')||S.perfil.eg||'';
+  if(!fecha||!fnac){el.textContent='Completá fecha de nacimiento en Perfil';return;}
+  el.textContent=edadStr(fnac,fecha,eg)||'—';
+  calcAntroLive();
+}
 
-function autoEdad(){const el=document.getElementById('a-edad-calc'),fecha=v('a-fecha'),fnac=v('p-fnac')||S.perfil.fnac||'',eg=v('p-eg')||S.perfil.eg||'';if(!fecha||!fnac){el.textContent='Completá fecha de nacimiento en Perfil';return;}el.textContent=edadStr(fnac,fecha,eg)||'—';calcAntroLive();}
+// NAV
+function nav(sec){
+  // Guardar estado del paciente actual antes de navegar
+  if(sec!=='pacientes'&&pacienteActual!==null)guardarPacienteActual();
+  if(sec==='pacientes'){mostrarListaPacientes();return;}
+  document.querySelectorAll('#app section').forEach(s=>s.classList.add('sec-hidden'));
+  const el=document.getElementById('sec-'+sec);if(el)el.classList.remove('sec-hidden');
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  document.querySelectorAll(`.sb-item[data-sec="${sec}"]`).forEach(i=>i.classList.add('active'));
+  if(sec==='graficos')setTimeout(()=>renderChart('chart-main'),50);
+  if(sec==='exportar')setTimeout(()=>{updatePrint();renderChart('chart-print');},50);
+  if(sec==='enfermedad'){
+    const fc=document.getElementById('enf-fecha-carga');
+    if(fc){const ahora=new Date();fc.textContent='Registro del: '+ahora.toLocaleDateString('es-AR',{weekday:'long',year:'numeric',month:'long',day:'numeric'})+' — '+ahora.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});}
+  }
+}
 
+// AUTH
+function doLogin(){
+  document.getElementById('auth-screen').style.display='none';
+  const app=document.getElementById('app');app.style.display='flex';app.style.flexDirection='column';
+  document.getElementById('tb-av').textContent=S.user.init;
+  document.getElementById('tb-name').textContent=S.user.name;
+  const isMed=S.role==='medico';
+  // Mostrar/ocultar elementos solo-médico
+  document.querySelectorAll('.medico-only').forEach(el=>el.classList.toggle('sec-hidden',!isMed));
+  // Si médico, la primera tab IODI es vínculo; sino social
+  if(!isMed){
+    S.iodi_cat='social';
+    const visTabs=document.querySelectorAll('#iodi-tabs .iodi-tab:not(.medico-only)');
+    visTabs.forEach(b=>b.classList.remove('active'));
+    if(visTabs[0])visTabs[0].classList.add('active');
+    document.querySelectorAll('.iodi-sec').forEach(s=>s.classList.remove('vis'));
+    document.getElementById('iodi-social').classList.add('vis');
+  }
+  if(!isMed){
+    document.getElementById('enf-medico-ctrl').classList.add('sec-hidden');
+    if(!S.enfActiva){
+      document.getElementById('enf-lock').classList.remove('sec-hidden');
+      document.getElementById('enf-activo').style.display='none';
+      // Ocultar pestaña enfermedad en sidebar para familia
+      const sbEnf=document.getElementById('sb-enfermedad');
+      if(sbEnf)sbEnf.style.display='none';
+    }
+    // Familia va directo al contenido clínico
+    document.getElementById('pac-screen').style.display='none';
+    document.getElementById('main-clinico').style.display='flex';
+  }
+  // Para médico: siempre mostrar enf-activo, ocultar lock
+  if(isMed){
+    const ea=document.getElementById('enf-activo');
+    const el=document.getElementById('enf-lock');
+    if(ea)ea.style.removeProperty('display');
+    if(el)el.classList.add('sec-hidden');
+  }
+  prefillDates();buildSintItems();loadDemo();
+  // Médico arranca en lista de pacientes
+  if(isMed){
+    mostrarListaPacientes();
+  }
+}
+function doLogout(){
+  document.getElementById('app').style.display='none';
+  document.getElementById('auth-screen').style.display='flex';
+  S.role='medico';S.user={name:'Dr. García',init:'DR'};
+  document.getElementById('rb-m').classList.add('active');
+  document.getElementById('rb-f').classList.remove('active');
+  document.getElementById('l-email').value='medico@pediapp.com';
+  document.getElementById('btn-volver').classList.remove('visible');
+  document.getElementById('tb-pac-nombre').classList.remove('visible');
+  if(S.chart){S.chart.destroy();S.chart=null;}
+  if(S.chartPrint){S.chartPrint.destroy();S.chartPrint=null;}
+}
+function prefillDates(){
+  const t=new Date().toISOString().split('T')[0];
+  ['a-fecha','est-fecha','est-ctrl','ic-fecha','ic-prox'].forEach(id=>{const e=document.getElementById(id);if(e&&!e.value)e.value=t;});
+  const fc=document.getElementById('enf-fecha-carga');
+  if(fc){
+    const ahora=new Date();
+    fc.textContent='Registro del: '+ahora.toLocaleDateString('es-AR',{weekday:'long',year:'numeric',month:'long',day:'numeric'})+' — '+ahora.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+  }
+}
+
+// PERFIL
+
+// ═══ SISTEMA MULTI-PACIENTE ═══
+let pacientes=[];
+let pacienteActual=null;
+
+function guardarPacienteActual(){
+  if(pacienteActual===null)return;
+  if(!pacientes[pacienteActual])return;
+  pacientes[pacienteActual]={...pacientes[pacienteActual],
+    nom:v('p-nom'),ape:v('p-ape'),fnac:v('p-fnac'),sexo:v('p-sexo'),wa:v('p-wa'),eg:v('p-eg'),
+    pesoNac:v('p-peso-nac'),tallaNac:v('p-talla-nac'),pcNac:v('p-pc-nac'),
+    antro:[...S.antro],hitos:[...S.hitos],estudios:[...S.estudios],ic:[...S.ic],
+    sintomas:[...S.sintomas],enfActiva:S.enfActiva
+  };
+}
+
+function cargarPaciente(idx){
+  const p=pacientes[idx];if(!p)return;
+  pacienteActual=idx;
+  document.getElementById('p-nom').value=p.nom||'';
+  document.getElementById('p-ape').value=p.ape||'';
+  document.getElementById('p-fnac').value=p.fnac||'';
+  document.getElementById('p-sexo').value=p.sexo||'';
+  document.getElementById('p-wa').value=p.wa||'';
+  document.getElementById('p-eg').value=p.eg||'';
+  document.getElementById('p-peso-nac').value=p.pesoNac||'';
+  document.getElementById('p-talla-nac').value=p.tallaNac||'';
+  document.getElementById('p-pc-nac').value=p.pcNac||'';
+  S.perfil={nom:p.nom,ape:p.ape,fnac:p.fnac,sexo:p.sexo,wa:p.wa,eg:p.eg};
+  S.antro=p.antro?[...p.antro]:[];
+  S.hitos=p.hitos?[...p.hitos]:[];
+  S.estudios=p.estudios?[...p.estudios]:[];
+  S.ic=p.ic?[...p.ic]:[];
+  S.sintomas=p.sintomas?[...p.sintomas]:[];
+  S.enfActiva=p.enfActiva||false;
+  document.getElementById('enf-toggle').checked=S.enfActiva;
+  document.getElementById('enf-estado-label').textContent=S.enfActiva?'Activo':'Inactivo';
+  document.getElementById('enf-dx-field').style.display=S.enfActiva?'':'none';
+  document.getElementById('enf-sint-card').style.display=S.enfActiva?'':'none';
+  document.getElementById('enf-urg-card').style.display=S.enfActiva?'':'none';
+  // Para familia: mostrar/ocultar pestaña enfermedad según si está activa
+  if(S.role!=='medico'){
+    const sbEnf=document.getElementById('sb-enfermedad');
+    if(sbEnf)sbEnf.style.display=S.enfActiva?'':'none';
+  }
+  calcPerfil();renderAntroTable();renderHitos();renderEstudios();renderIC();renderSint();
+}
+
+function nuevoPaciente(){
+  guardarPacienteActual();
+  const p={nom:'',ape:'',fnac:'',sexo:'',wa:'',eg:'',pesoNac:'',tallaNac:'',pcNac:'',
+    antro:[],hitos:[],estudios:[],ic:[],sintomas:[],enfActiva:false};
+  pacientes.push(p);
+  cargarPaciente(pacientes.length-1);
+  nav('perfil');
+  document.getElementById('edad-display').style.display='none';
+  document.getElementById('pc-nac-badges').innerHTML='<span style="font-size:12px;color:var(--muted)">Ingresá EG, sexo y medidas</span>';
+}
+
+function calcEdadStr(fnac){
+  if(!fnac)return'';
+  try{const n=new Date(fnac),h=new Date();
+    let m=(h.getFullYear()-n.getFullYear())*12+(h.getMonth()-n.getMonth());
+    if(h.getDate()<n.getDate())m--;m=Math.max(0,m);
+    const a=Math.floor(m/12),mr=m%12;return a>0?(a+'a '+mr+'m'):(m+'m');
+  }catch{return'';}
+}
+
+function renderPacientesScreen(){
+  const el=document.getElementById('pac-list-screen');if(!el)return;
+  const q=(document.getElementById('pac-search-screen')?.value||'').toLowerCase();
+  const filtrados=pacientes.map((p,i)=>({...p,_i:i})).filter(p=>
+    !q||((p.nom||'')+' '+(p.ape||'')).toLowerCase().includes(q));
+  if(!filtrados.length){
+    el.innerHTML='<div class="empty" style="padding:3rem 1rem"><svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\' style=\'width:48px;height:48px;display:block;margin:0 auto 1rem;opacity:.25\'><circle cx=\'9\' cy=\'7\' r=\'3\'/><path d=\'M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2\'/><path d=\'M16 3.13a4 4 0 0 1 0 7.75\'/><path d=\'M21 21v-2a4 4 0 0 0-3-3.85\'/></svg><div style=\'font-size:15px;font-weight:500;margin-bottom:.4rem\'>Sin pacientes</div><div style=\'font-size:13px\'>Creá tu primer paciente con el botón de arriba</div></div>';
+    return;
+  }
+  el.innerHTML=filtrados.map(p=>{
+    const nombre=((p.nom||'Sin nombre')+' '+(p.ape||'')).trim();
+    const init=((p.nom||'?')[0]+(p.ape||'?')[0]).toUpperCase();
+    const edad=calcEdadStr(p.fnac);
+    const ultControl=p.antro&&p.antro.length?('Último control: '+fd(p.antro[p.antro.length-1].fecha)):'Sin controles';
+    const nControles=p.antro?p.antro.length:0;
+    return`<div class="pac-item" data-idx="${p._i}" style="padding:1rem 1.1rem">
+      <div class="pac-avatar" style="width:46px;height:46px;font-size:16px">${init}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:600;font-size:15px;margin-bottom:2px">${nombre}</div>
+        <div style="font-size:12px;color:var(--muted)">${edad||'Sin fecha de nac.'}${p.eg&&parseInt(p.eg)<37?' · Prematuro '+p.eg+'sem':''}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">${ultControl} · ${nControles} control(es)</div>
+        ${p.usuario?`<div style="font-size:10px;color:var(--teal-d);margin-top:3px">👤 ${p.usuario}</div>`:''}
+      </div>
+      <div style="flex-shrink:0">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;color:var(--muted)"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>`;
+  }).join('');
+  el.querySelectorAll('.pac-item').forEach(item=>{
+    item.addEventListener('click',function(){
+      guardarPacienteActual();
+      abrirPaciente(parseInt(this.dataset.idx));
+    });
+  });
+}
+
+function renderPacientes(){renderPacientesScreen();}
+
+
+// ═══ FLUJO PANTALLA PACIENTES ═══
+function mostrarListaPacientes(){
+  document.getElementById('pac-screen').style.display='flex';
+  document.getElementById('main-clinico').style.display='none';
+  document.getElementById('btn-volver').classList.remove('visible');
+  document.getElementById('tb-pac-nombre').classList.remove('visible');
+  renderPacientesScreen();
+}
+
+function abrirPaciente(idx){
+  cargarPaciente(idx);
+  pacienteActual=idx;
+  document.getElementById('pac-screen').style.display='none';
+  document.getElementById('main-clinico').style.display='flex';
+  document.getElementById('btn-volver').classList.add('visible');
+  const p=pacientes[idx];
+  const nombre=((p.nom||'')+' '+(p.ape||'')).trim()||'Paciente';
+  const el=document.getElementById('tb-pac-nombre');
+  el.textContent=nombre;el.classList.add('visible');
+  nav('perfil');
+}
+
+function abrirModalNuevoPaciente(){
+  // Limpiar campos
+  ['np-nom','np-ape','np-fnac','np-wa','np-user','np-pass'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.value='';
+  });
+  const sex=document.getElementById('np-sexo');if(sex)sex.value='';
+  document.getElementById('modal-nuevo-pac').classList.add('open');
+}
+
+function confirmarNuevoPaciente(){
+  const nom=document.getElementById('np-nom').value.trim();
+  const ape=document.getElementById('np-ape').value.trim();
+  if(!nom&&!ape){showModal('Falta el nombre','Ingresá al menos el nombre o apellido del paciente.');return;}
+  const usuario=document.getElementById('np-user').value.trim();
+  const clave=document.getElementById('np-pass').value;
+  if(usuario&&clave&&clave.length<6){showModal('Contraseña corta','La contraseña debe tener al menos 6 caracteres.');return;}
+  const p={
+    nom,ape,
+    fnac:document.getElementById('np-fnac').value,
+    sexo:document.getElementById('np-sexo').value,
+    wa:document.getElementById('np-wa').value.trim(),
+    eg:'',pesoNac:'',tallaNac:'',pcNac:'',
+    usuario:usuario||'',clave:clave||'',
+    antro:[],hitos:[],estudios:[],ic:[],sintomas:[],enfActiva:false
+  };
+  pacientes.push(p);
+  document.getElementById('modal-nuevo-pac').classList.remove('open');
+  abrirPaciente(pacientes.length-1);
+}
+
+function savePerfil(){
+  S.perfil={nom:v('p-nom'),ape:v('p-ape'),fnac:v('p-fnac'),sexo:v('p-sexo'),eg:v('p-eg'),wa:v('p-wa')};
+  showOk('p-ok');
+}
+
+// ANTRO
+function addAntro(){
+  const fecha=v('a-fecha'),peso=v('a-peso');
+  if(!fecha||!peso){showModal('Datos incompletos','Completá al menos fecha y peso.');return;}
+  // Usar S.perfil como fuente primaria, DOM como fallback
+  const fnac=(v('p-fnac')||S.perfil.fnac||'').trim();
+  const egRaw=v('p-eg')||S.perfil.eg||'0';
+  const eg=parseInt(egRaw)||0;
+  const sexo=(v('p-sexo')||S.perfil.sexo||'').trim();
+  const pesoNum=parseFloat(peso);
+  const tallaNum=parseFloat(v('a-talla')||'0');
+  const pcNum=parseFloat(v('a-pc')||'0');
+  const mc=fnac?getMeses(fnac,fecha):null;
+  const mec=fnac&&eg?getMesesCorr(fnac,fecha,eg):null;
+  const mu=mec!==null?mec:(mc!==null?mc:0);
+  const wT=sexo==='M'?SP_W_M:SP_W_F;
+  const lT=sexo==='M'?SP_L_M:SP_L_F;
+  const hT=sexo==='M'?SP_HC_M:SP_HC_F;
+  const ppeso=pesoNum>0?sapLookup(wT,mu,pesoNum/1000):'—';
+  const ptalla=tallaNum>0?sapLookup(lT,mu,tallaNum):'—';
+  const ppc=pcNum>0?sapLookup(hT,mu,pcNum):'—';
+
+  S.antro.push({fecha,peso,talla:v('a-talla'),pc:v('a-pc'),
+    ppeso,ptalla,ppc,
+    edad:document.getElementById('a-edad-calc').textContent,obs:v('a-obs'),ts:nowTS()});
+  renderAntroTable();
+  ['a-peso','a-talla','a-pc','a-obs'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  document.getElementById('antro-pcts-live').style.display='none';
+}
+function renderAntroTable(){
+  const tb=document.getElementById('antro-tbody');
+  if(!S.antro.length){tb.innerHTML='<tr><td colspan="9" style="text-align:center;padding:1.5rem;color:var(--muted)">Sin registros</td></tr>';return;}
+  tb.innerHTML=S.antro.map(r=>`<tr><td>${fd(r.fecha)}</td><td style="font-size:11px">${r.edad||'—'}</td><td>${r.peso||'—'}</td><td>${ptag(r.ppeso)}</td><td>${r.talla||'—'}</td><td>${ptag(r.ptalla)}</td><td>${r.pc||'—'}</td><td>${ptag(r.ppc)}</td><td style="font-size:11px;max-width:100px">${r.obs||'—'}</td></tr>`).join('');
+}
+
+// GRÁFICO
 function renderChart(canvasId){
   const id=canvasId||'chart-main';
   const cfg={peso:{label:'Peso (g)',f:'peso',wtM:SP_W_M,wtF:SP_W_F,sc:1000},talla:{label:'Talla (cm)',f:'talla',wtM:SP_L_M,wtF:SP_L_F,sc:1},pc:{label:'PC (cm)',f:'pc',wtM:SP_HC_M,wtF:SP_HC_F,sc:1}}[S.grafMode];
-  if(id==='chart-main')document.getElementById('graf-title').textContent='📈 '+cfg.label;
+  if(id==='chart-main'){document.getElementById('graf-title').innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="14 7 21 7 21 14"/></svg>${cfg.label}`;}
   const key=id==='chart-main'?'chart':'chartPrint';
   if(S[key]){S[key].destroy();S[key]=null;}
   const canvas=document.getElementById(id);if(!canvas)return;
@@ -1045,32 +1106,159 @@ function renderChart(canvasId){
   const meses=Object.keys(tbl).map(Number).sort((a,b)=>a-b);
   const mkLbl=m=>{if(!fnac)return m+'m';const d=new Date(fnac);d.setMonth(d.getMonth()+m);return d.toLocaleDateString('es-AR',{month:'short',year:'2-digit'});};
   const labels=meses.map(mkLbl);
-  const p3=meses.map(m=>tbl[m][0]*cfg.sc),p50=meses.map(m=>tbl[m][2]*cfg.sc),p97=meses.map(m=>tbl[m][4]*cfg.sc);
-  const patPts=fnac?S.antro.filter(r=>r[cfg.f]).map(r=>({x:mkLbl(getMeses(fnac,r.fecha)||0),y:parseFloat(r[cfg.f])})):[];
-  S[key]=new Chart(canvas,{type:'line',data:{labels,datasets:[{label:'P97',data:p97,borderColor:'#D3D1C7',borderWidth:1,fill:false,pointRadius:0,tension:.4,borderDash:[3,3]},{label:'P50',data:p50,borderColor:'#1D9E75',borderWidth:2,fill:false,pointRadius:0,tension:.4},{label:'P3',data:p3,borderColor:'#D3D1C7',borderWidth:1,fill:1,backgroundColor:'rgba(29,158,117,0.07)',pointRadius:0,tension:.4,borderDash:[3,3]},{label:'Paciente',data:patPts,borderColor:'#0F6E56',backgroundColor:'#1D9E75',borderWidth:2,pointRadius:5,pointHoverRadius:7,tension:.3,parsing:{xAxisKey:'x',yAxisKey:'y'}}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{font:{size:10}},grid:{display:false}},y:{ticks:{font:{size:11}},grid:{color:'rgba(0,0,0,0.05)'}}},plugins:{legend:{display:false}}}});
+  const p3=meses.map(m=>tbl[m][0]*cfg.sc);
+  const p10=meses.map(m=>tbl[m][1]*cfg.sc);
+  const p50=meses.map(m=>tbl[m][2]*cfg.sc);
+  const p90=meses.map(m=>tbl[m][3]*cfg.sc);
+  const p97=meses.map(m=>tbl[m][4]*cfg.sc);
+  const patPts=fnac?S.antro.filter(r=>r[cfg.f]).map(r=>{const d=new Date(r.fecha);return{x:mkLbl(getMeses(fnac,r.fecha)||0),y:parseFloat(r[cfg.f])*(cfg.sc>1?1:cfg.sc)};}):[]; 
+  S[key]=new Chart(canvas,{type:'line',data:{labels,datasets:[
+    {label:'P97',data:p97,borderColor:'#D3D1C7',borderWidth:1,fill:false,pointRadius:0,tension:.4,borderDash:[3,3]},
+    {label:'P90',data:p90,borderColor:'#9FE1CB',borderWidth:1,fill:false,pointRadius:0,tension:.4,borderDash:[4,2]},
+    {label:'P50',data:p50,borderColor:'#1D9E75',borderWidth:2,fill:false,pointRadius:0,tension:.4},
+    {label:'P10',data:p10,borderColor:'#9FE1CB',borderWidth:1,fill:false,pointRadius:0,tension:.4,borderDash:[4,2]},
+    {label:'P3',data:p3,borderColor:'#D3D1C7',borderWidth:1,fill:false,pointRadius:0,tension:.4,borderDash:[3,3]},
+    {label:'Paciente',data:patPts,borderColor:'#0F6E56',backgroundColor:'#1D9E75',borderWidth:2,pointRadius:5,pointHoverRadius:7,tension:.3,parsing:{xAxisKey:'x',yAxisKey:'y'}}
+  ]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{font:{size:10}},grid:{display:false}},y:{ticks:{font:{size:11}},grid:{color:'rgba(0,0,0,0.05)'}}},plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.y.toFixed(1)}}}}});
 }
 
-function selIODI(cat){S.iodi_cat=cat;document.querySelectorAll('.iodi-sec').forEach(s=>s.classList.remove('vis'));const el=document.getElementById('iodi-'+cat);if(el)el.classList.add('vis');}
+// IODI
+function selIODI(cat){
+  S.iodi_cat=cat;
+  document.querySelectorAll('.iodi-sec').forEach(s=>s.classList.remove('vis'));
+  const el=document.getElementById('iodi-'+cat);if(el)el.classList.add('vis');
+}
+function addHito(){
+  const sel=document.getElementById('iodi-sel-'+S.iodi_cat);
+  const h=sel?sel.value:'';if(!h){showModal('Sin ítem','Seleccioná un ítem de desarrollo.');return;}
+  const catL={vincular:'Vínculo',social:'Social',motor:'Motricidad',cvmc:'Coordinación',comunicacion:'Lenguaje'};
+  S.hitos.push({h,cat:catL[S.iodi_cat]||S.iodi_cat,res:v('iodi-resultado')||'logrado',edad:v('iodi-edad'),obs:v('iodi-obs'),ts:nowTS()});
+  renderHitos();if(sel)sel.value='';
+  ['iodi-edad','iodi-obs'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+}
+function renderHitos(){
+  const el=document.getElementById('hitos-list');
+  if(!S.hitos.length){el.innerHTML='<div class="empty"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"/><circle cx="8" cy="12" r="2" fill="currentColor"/><circle cx="16" cy="12" r="2" fill="currentColor"/><line x1="8" y1="7" x2="8" y2="10"/><line x1="16" y1="7" x2="16" y2="10"/><line x1="8" y1="14" x2="8" y2="17"/><line x1="16" y1="14" x2="16" y2="17"/></svg>Sin registros</div>';return;}
+  const rL={logrado:'Lo hace',preguntado:'Refiere familia',seguimiento:'En seguimiento'};
+  el.innerHTML=S.hitos.map(h=>`<div class="hito-item">
+    <div class="hdot ${h.res==='logrado'?'dg':h.res==='preguntado'?'db':'da'}"></div>
+    <div style="flex:1"><div style="font-size:13px">${h.h}</div><div style="font-size:11px;color:var(--muted)">${h.cat} · ${h.ts}${h.obs?' · '+h.obs:''}</div></div>
+    <span class="tag ${h.res==='logrado'?'tg':h.res==='preguntado'?'tb2':'ta'}" style="font-size:11px">${rL[h.res]||h.res}</span>
+  </div>`).join('');
+}
 
+// ESTUDIOS
+function addEstudio(){
+  const tipo=v('est-tipo');if(!tipo){showModal('Falta tipo','Seleccioná el tipo de estudio.');return;}
+  S.estudios.push({tipo,fecha:v('est-fecha'),res:v('est-res'),inf:v('est-inf'),hall:v('est-hall'),ctrl:v('est-ctrl'),ts:nowTS()});
+  renderEstudios();
+}
+function renderEstudios(){
+  const el=document.getElementById('est-list');
+  if(!S.estudios.length){el.innerHTML='<div class="empty"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3h4v8l3.5 6.5A1 1 0 0 1 16.6 19H7.4a1 1 0 0 1-.9-1.5L10 11V3z"/><line x1="10" y1="3" x2="10" y2="9"/><line x1="14" y1="3" x2="14" y2="9"/></svg>Sin estudios</div>';return;}
+  el.innerHTML=S.estudios.map(e=>`<div style="border:0.5px solid var(--border);border-radius:var(--r-sm);padding:.8rem;margin-bottom:.45rem;background:var(--surface)">
+    <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:.3rem"><span style="font-weight:600;font-size:13px">${e.tipo}</span><span class="tag ${e.res==='normal'?'tg':e.res==='patologico'?'tr':'ta'}" style="font-size:11px">${rl(e.res)}</span><span style="margin-left:auto;font-size:11px;color:var(--muted)">${fd(e.fecha)}</span></div>
+    ${e.inf?`<div style="font-size:12px;color:var(--muted)">${e.inf}</div>`:''}
+    ${e.hall?`<div style="font-size:12px;color:var(--red-d);margin-top:.3rem"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> ${e.hall}</div>`:''}
+    ${e.ctrl?`<div style="font-size:11px;color:var(--muted);margin-top:.3rem"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Próx: ${fd(e.ctrl)}</div>`:''}
+  </div>`).join('');
+}
+
+// IC
+function addIC(){
+  const esp=v('ic-esp');if(!esp){showModal('Falta especialidad','Seleccioná la especialidad.');return;}
+  S.ic.push({esp,fecha:v('ic-fecha'),res:v('ic-res'),hall:v('ic-hall'),estSol:v('ic-est-sol'),estRes:v('ic-est-res'),prox:v('ic-prox'),ts:nowTS()});
+  renderIC();
+}
+function renderIC(){
+  const el=document.getElementById('ic-list');
+  if(!S.ic.length){el.innerHTML='<div class="empty"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="3"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0-3-3.85"/></svg>Sin interconsultas</div>';return;}
+  el.innerHTML=S.ic.map(ic=>`<div style="border:0.5px solid var(--border);border-radius:var(--r-sm);padding:.8rem;margin-bottom:.45rem;background:var(--surface)">
+    <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:.3rem"><span class="tag tp" style="font-size:11px">${ic.esp}</span><span class="tag ${ic.res==='normal'?'tg':ic.res==='patologico'?'tr':'tgr'}" style="font-size:11px">${rl(ic.res)}</span><span style="margin-left:auto;font-size:11px;color:var(--muted)">${fd(ic.fecha)}</span></div>
+    ${ic.hall?`<div style="font-size:12px;color:var(--red-d)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> ${ic.hall}</div>`:''}
+    ${ic.estSol?`<div style="font-size:12px;margin-top:.3rem;color:var(--muted)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3h4v8l3.5 6.5A1 1 0 0 1 16.6 19H7.4a1 1 0 0 1-.9-1.5L10 11V3z"/><line x1="10" y1="3" x2="10" y2="9"/><line x1="14" y1="3" x2="14" y2="9"/></svg> ${ic.estSol}</div>`:''}
+    ${ic.prox?`<div style="font-size:11px;margin-top:.3rem;color:var(--muted)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Próx: ${fd(ic.prox)}</div>`:''}
+  </div>`).join('');
+}
+
+// SÍNTOMAS CON DETALLE
 const SINT_DEF=[
-  {id:'fiebre',label:'Fiebre',urgente:false,detail:`<label>Temperatura (°C)</label><input type="number" id="sd-fiebre-temp" placeholder="38.5" min="35" max="42" step="0.1" style="max-width:120px"><label>¿Cómo cede?</label><select id="sd-fiebre-cede"><option value="">—</option><option>Baja con antitérmico</option><option>Baja sola</option><option>No baja</option></select>`},
-  {id:'moco',label:'Moco / resfrío',urgente:false,detail:`<label>Color</label><select id="sd-moco-color"><option value="">—</option><option>Transparente</option><option>Blanco</option><option>Amarillo</option><option>Verde</option></select><label>Cantidad</label><select id="sd-moco-cant"><option value="">—</option><option>Poco</option><option>Regular</option><option>Mucho</option></select>`},
-  {id:'tos',label:'Tos',urgente:false,detail:`<label>Tipo</label><select id="sd-tos-tipo"><option value="">—</option><option>Seca</option><option>Con flema</option><option>Perruna (como ladrido)</option><option>Emetizante (hasta vomitar)</option></select><label>Frecuencia</label><select id="sd-tos-frec"><option value="">—</option><option>Ocasional</option><option>Frecuente</option><option>Continua</option><option>Solo de noche</option></select>`},
-  {id:'resp',label:'Dificultad para respirar',urgente:true,detail:`<label>Descripción</label><select id="sd-resp-tipo"><option value="">—</option><option>Respira más rápido de lo normal</option><option>Se le hunde el pecho al respirar</option><option>Hace ruido al respirar</option><option>Los labios o uñas se ven azulados</option></select>`},
-  {id:'alim',label:'No quiere comer',urgente:true,detail:`<label>¿Cuánto come?</label><select id="sd-alim-cant"><option value="">—</option><option>La mitad</option><option>Muy poco</option><option>Nada</option></select><label>¿Toma líquidos?</label><select id="sd-alim-liq"><option value="">—</option><option>Bien</option><option>Poco</option><option>Rechaza todo</option></select>`},
-  {id:'decaido',label:'Muy decaído',urgente:true,detail:`<label>Descripción</label><select id="sd-decaido-desc"><option value="">—</option><option>Está quieto pero responde</option><option>No quiere jugar ni moverse</option><option>Casi no reacciona</option><option>No se despierta</option></select>`},
-  {id:'vomitos',label:'Vómitos',urgente:false,detail:`<label>Veces en el día</label><input type="number" id="sd-vomitos-cant" placeholder="3" min="0" max="20" style="max-width:80px"><label>Contenido</label><select id="sd-vomitos-tipo"><option value="">—</option><option>Alimento</option><option>Líquido transparente</option><option>Líquido verde o amarillo</option><option>Con sangre</option></select>`},
-  {id:'diarrea',label:'Diarrea',urgente:false,detail:`<label>Deposiciones en el día</label><input type="number" id="sd-diarrea-cant" placeholder="5" min="0" max="20" style="max-width:80px"><label>Características</label><select id="sd-diarrea-tipo"><option value="">—</option><option>Líquida</option><option>Con moco</option><option>Con sangre</option></select>`},
-  {id:'sueno',label:'No duerme bien',urgente:false,detail:`<label>Descripción</label><select id="sd-sueno-desc"><option value="">—</option><option>Le cuesta dormirse</option><option>Se despierta seguido</option><option>Duerme mucho más de lo habitual</option></select>`},
-  {id:'dolor',label:'Dolor',urgente:false,detail:`<label>¿Dónde duele?</label><select id="sd-dolor-zona"><option value="">—</option><option>Cabeza</option><option>Oídos</option><option>Garganta</option><option>Panza</option><option>Pecho</option><option>Piernas / brazos</option></select><label>Intensidad (1–10)</label><input type="number" id="sd-dolor-int" min="1" max="10" style="max-width:80px">`},
+  {id:'fiebre',label:'Fiebre',urgente:false,detail:`
+    <label>Temperatura (°C)</label>
+    <input type="number" id="sd-fiebre-temp" placeholder="Ej: 38.5" min="35" max="42" step="0.1" style="max-width:120px">
+    <label>¿Cómo cede?</label>
+    <select id="sd-fiebre-cede"><option value="">—</option><option>Baja con antitérmico</option><option>Baja sola</option><option>No baja</option></select>`},
+  {id:'moco',label:'Moco / resfrío',urgente:false,detail:`
+    <label>Color</label>
+    <select id="sd-moco-color"><option value="">—</option><option>Transparente</option><option>Blanco</option><option>Amarillo</option><option>Verde</option></select>
+    <label>Cantidad</label>
+    <select id="sd-moco-cant"><option value="">—</option><option>Poco</option><option>Regular</option><option>Mucho</option></select>`},
+  {id:'tos',label:'Tos',urgente:false,detail:`
+    <label>Tipo</label>
+    <select id="sd-tos-tipo"><option value="">—</option><option>Seca</option><option>Con flema</option><option>Perruna (como ladrido)</option><option>Emetizante (hasta vomitar)</option></select>
+    <label>Frecuencia</label>
+    <select id="sd-tos-frec"><option value="">—</option><option>Ocasional</option><option>Frecuente</option><option>Continua</option><option>Solo de noche</option></select>`},
+  {id:'resp',label:'Dificultad para respirar',urgente:true,detail:`
+    <label>Descripción</label>
+    <select id="sd-resp-tipo"><option value="">—</option><option>Respira más rápido de lo normal</option><option>Se le hunde el pecho al respirar</option><option>Hace ruido al respirar</option><option>Los labios o uñas se ven azulados</option></select>`},
+  {id:'alim',label:'No quiere comer',urgente:true,detail:`
+    <label>¿Cuánto come respecto a lo habitual?</label>
+    <select id="sd-alim-cant"><option value="">—</option><option>La mitad</option><option>Muy poco</option><option>Nada en las últimas horas</option></select>
+    <label>¿También rechaza líquidos?</label>
+    <select id="sd-alim-liq"><option value="">—</option><option>Toma líquidos bien</option><option>Toma poco líquido</option><option>Rechaza todo</option></select>`},
+  {id:'decaido',label:'Muy decaído',urgente:true,detail:`
+    <label>Descripción</label>
+    <select id="sd-decaido-desc"><option value="">—</option><option>Está quieto pero responde</option><option>No quiere jugar ni moverse</option><option>Casi no reacciona cuando le hablamos</option><option>No se despierta o es difícil despertarlo</option></select>`},
+  {id:'vomitos',label:'Vómitos',urgente:false,detail:`
+    <label>Cuántas veces en el día</label>
+    <input type="number" id="sd-vomitos-cant" placeholder="Ej: 3" min="0" max="20" style="max-width:80px">
+    <label>Contenido</label>
+    <select id="sd-vomitos-tipo"><option value="">—</option><option>Leche / alimento</option><option>Líquido transparente</option><option>Líquido verde o amarillo</option><option>Con sangre</option></select>`},
+  {id:'diarrea',label:'Diarrea',urgente:false,detail:`
+    <label>Deposiciones en el día</label>
+    <input type="number" id="sd-diarrea-cant" placeholder="Ej: 5" min="0" max="20" style="max-width:80px">
+    <label>Características</label>
+    <select id="sd-diarrea-tipo"><option value="">—</option><option>Líquida</option><option>Pastosa</option><option>Con moco</option><option>Con sangre</option></select>
+    <label>Color</label>
+    <select id="sd-diarrea-color"><option value="">—</option><option>Normal (marrón)</option><option>Verde</option><option>Amarilla</option><option>Negra</option><option>Con sangre roja</option></select>`},
+  {id:'sueno',label:'No duerme bien',urgente:false,detail:`
+    <label>Descripción</label>
+    <select id="sd-sueno-desc"><option value="">—</option><option>Le cuesta dormirse</option><option>Se despierta seguido</option><option>Duerme mucho más de lo habitual</option><option>Está muy irritable al despertar</option></select>`},
+  {id:'dolor',label:'Dolor',urgente:false,detail:`
+    <label>¿Dónde duele?</label>
+    <select id="sd-dolor-zona"><option value="">—</option><option>Cabeza</option><option>Oídos</option><option>Garganta</option><option>Panza</option><option>Pecho</option><option>Piernas / brazos</option><option>No puede decirlo</option></select>
+    <label>Intensidad (1 poco — 10 mucho)</label>
+    <input type="number" id="sd-dolor-int" placeholder="1–10" min="1" max="10" style="max-width:80px">
+    <label>¿Es continuo o va y viene?</label>
+    <select id="sd-dolor-cont"><option value="">—</option><option>Continuo</option><option>Va y viene</option><option>Solo con movimiento</option></select>`}
 ];
 
 function buildSintItems(){
   const cont=document.getElementById('sint-items');if(!cont)return;
-  cont.innerHTML=SINT_DEF.map(s=>`<div class="sint-item"><div class="sint-header" data-sid="${s.id}"><input type="checkbox" class="sint-chk" data-sid="${s.id}"><span class="sint-label">${s.label}</span>${s.urgente?'<span class="sint-urgente">ir a guardia</span>':''}<span style="margin-left:auto;font-size:13px;color:var(--muted)">▾</span></div><div class="sint-detail" id="sd-${s.id}">${s.detail}</div></div>`).join('');
+  cont.innerHTML=SINT_DEF.map(s=>`
+    <div class="sint-item">
+      <div class="sint-header" data-sid="${s.id}">
+        <input type="checkbox" class="sint-chk" data-sid="${s.id}">
+        <span class="sint-label">${s.label}</span>
+        ${s.urgente?'<span class="sint-urgente">ir a guardia</span>':''}
+        <svg style="font-size:14px;color:var(--muted);margin-left:4px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="sint-detail" id="sd-${s.id}">${s.detail}</div>
+    </div>`).join('');
+  // Toggle detail on header click
   cont.querySelectorAll('.sint-header').forEach(hdr=>{
-    hdr.addEventListener('click',function(e){if(e.target.type==='checkbox')return;const sid=this.dataset.sid;const detail=document.getElementById('sd-'+sid);const chk=this.querySelector('.sint-chk');if(!chk.checked){chk.checked=true;detail.classList.add('open');}else detail.classList.toggle('open');});
-    hdr.querySelector('.sint-chk').addEventListener('change',function(){document.getElementById('sd-'+this.dataset.sid).classList.toggle('open',this.checked);});
+    hdr.addEventListener('click',function(e){
+      if(e.target.type==='checkbox')return;
+      const sid=this.dataset.sid;
+      const detail=document.getElementById('sd-'+sid);
+      const chk=this.querySelector('.sint-chk');
+      if(!chk.checked){chk.checked=true;detail.classList.add('open');}
+      else{detail.classList.toggle('open');}
+    });
+    hdr.querySelector('.sint-chk').addEventListener('change',function(){
+      const detail=document.getElementById('sd-'+this.dataset.sid);
+      if(this.checked)detail.classList.add('open');else detail.classList.remove('open');
+    });
   });
 }
 
@@ -1080,97 +1268,180 @@ function getSintData(){
     const chk=document.querySelector(`.sint-chk[data-sid="${s.id}"]`);
     if(!chk||!chk.checked)return;
     const details={};
-    document.querySelectorAll(`#sd-${s.id} input,#sd-${s.id} select`).forEach(el=>{if(el.value)details[el.id]=el.value;});
+    document.querySelectorAll(`#sd-${s.id} input,#sd-${s.id} select`).forEach(el=>{
+      if(el.value)details[el.id.replace('sd-'+s.id+'-','')]=el.value;
+    });
     result.push({label:s.label,urgente:s.urgente,details});
   });
   return result;
 }
 
-function updatePrint(){
-  const p=S.perfil;
-  const pc=document.getElementById('print-perfil-content');
-  if(pc&&(p.nom||p.fnac))pc.innerHTML=`<strong>${p.nom||''} ${p.ape||''}</strong><br>Nac: ${fd(p.fnac)} · Sexo: ${p.sexo==='M'?'Masc':p.sexo==='F'?'Fem':'—'} · EG: ${p.eg||'—'}sem`;
-  const tb=document.getElementById('print-antro-tbody');
-  if(tb){if(!S.antro.length)tb.innerHTML='<tr><td colspan="8" style="text-align:center;padding:1rem;color:var(--muted)">Sin datos</td></tr>';else tb.innerHTML=S.antro.map(r=>`<tr><td>${fd(r.fecha)}</td><td style="font-size:11px">${r.edad||'—'}</td><td>${r.peso||'—'}</td><td>${ptag(r.ppeso)}</td><td>${r.talla||'—'}</td><td>${ptag(r.ptalla)}</td><td>${r.pc||'—'}</td><td>${ptag(r.ppc)}</td></tr>`).join('');}
-  const hc=document.getElementById('print-hitos-content');
-  if(hc){const rL={logrado:'Lo hace',preguntado:'Refiere familia',seguimiento:'En seguimiento'};hc.innerHTML=S.hitos.length?S.hitos.map(h=>`<div style="display:flex;align-items:center;gap:.5rem;padding:.4rem 0;border-bottom:0.5px solid var(--border)"><span class="tag ${h.res==='logrado'?'tg':h.res==='preguntado'?'tb2':'ta'}" style="font-size:11px">${rL[h.res]}</span><span style="font-size:13px">${h.h}</span></div>`).join(''):'<div class="empty" style="padding:1rem"><span class="empty-icon">🧠</span>Sin registros</div>';}
+function guardarSint(){
+  const datos=getSintData();
+  if(!datos.length){showModal('Sin datos','Marcá al menos un síntoma.');return;}
+  S.sintomas.unshift({datos,fecha:new Date().toLocaleString('es-AR')});
+  renderSint();
+  document.querySelectorAll('.sint-chk').forEach(c=>c.checked=false);
+  document.querySelectorAll('.sint-detail').forEach(d=>d.classList.remove('open'));
+  document.querySelectorAll('.sint-detail input,.sint-detail select').forEach(e=>e.value='');
+  showModal('Registro guardado','El registro del día quedó guardado. Si la situación empeora, acudí a guardia.');
+}
+function renderSint(){
+  const el=document.getElementById('sint-historial');
+  if(!S.sintomas.length){el.innerHTML='<div class="empty"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>Sin registros</div>';return;}
+  el.innerHTML=S.sintomas.map(s=>`<div style="border:0.5px solid var(--border);border-radius:var(--r-sm);padding:.8rem;margin-bottom:.45rem;background:var(--surface)">
+    <div style="font-size:11px;color:var(--muted);margin-bottom:.5rem;font-weight:500">${s.fecha}</div>
+    ${s.datos.map(d=>`<div style="margin-bottom:.4rem">
+      <div style="display:flex;align-items:center;gap:.4rem;flex-wrap:wrap">
+        <span class="tag ${d.urgente?'tr':'ta'}" style="font-size:11px">${d.label}</span>
+        ${Object.entries(d.details).map(([k,val])=>`<span style="font-size:11px;color:var(--muted)">${val}</span>`).join('<span style="color:var(--gray-100)">·</span>')}
+      </div></div>`).join('')}
+  </div>`).join('');
 }
 
-function prefillDates(){const t=new Date().toISOString().split('T')[0];['a-fecha','est-fecha','est-ctrl','ic-fecha','ic-prox'].forEach(id=>{const e=document.getElementById(id);if(e&&!e.value)e.value=t;});}
+// ENFERMEDAD
+function toggleEnf(){
+  const chk=document.getElementById('enf-toggle');S.enfActiva=chk.checked;
+  document.getElementById('enf-estado-label').textContent=S.enfActiva?'Activo':'Inactivo';
+  document.getElementById('enf-dx-field').style.display=S.enfActiva?'':'none';
+  document.getElementById('enf-sint-card').style.display=S.enfActiva?'':'none';
+  document.getElementById('enf-urg-card').style.display=S.enfActiva?'':'none';
+  // Guardar en paciente actual
+  if(pacienteActual!==null&&pacientes[pacienteActual])pacientes[pacienteActual].enfActiva=S.enfActiva;
+}
 
-// ══════════════════════════════════════════════════════
-// INIT
-// ══════════════════════════════════════════════════════
+// EXPORTAR / IMPRIMIR
+function updatePrint(){
+  // Perfil
+  const p=S.perfil;
+  const pc=document.getElementById('print-perfil-content');
+  if(pc&&(p.nom||p.fnac)){
+    pc.innerHTML=`<strong>${p.nom||''} ${p.ape||''}</strong><br>Nacimiento: ${fd(p.fnac)} · Sexo: ${p.sexo==='M'?'Masculino':p.sexo==='F'?'Femenino':'—'} · EG: ${p.eg||'—'} sem<br>WhatsApp: ${p.wa||'—'}`;
+  }
+  // Antro
+  const tb=document.getElementById('print-antro-tbody');
+  if(tb){
+    if(!S.antro.length)tb.innerHTML='<tr><td colspan="8" style="text-align:center;padding:1rem;color:var(--muted)">Sin registros</td></tr>';
+    else tb.innerHTML=S.antro.map(r=>`<tr><td>${fd(r.fecha)}</td><td style="font-size:11px">${r.edad||'—'}</td><td>${r.peso||'—'}</td><td>${ptag(r.ppeso)}</td><td>${r.talla||'—'}</td><td>${ptag(r.ptalla)}</td><td>${r.pc||'—'}</td><td>${ptag(r.ppc)}</td></tr>`).join('');
+  }
+  // Hitos
+  const hc=document.getElementById('print-hitos-content');
+  if(hc){
+    const rL={logrado:'Lo hace',preguntado:'Refiere familia',seguimiento:'En seguimiento'};
+    hc.innerHTML=S.hitos.length?S.hitos.map(h=>`<div style="display:flex;align-items:center;gap:.5rem;padding:.4rem 0;border-bottom:0.5px solid var(--border)"><span class="tag ${h.res==='logrado'?'tg':h.res==='preguntado'?'tb2':'ta'}" style="font-size:11px">${rL[h.res]}</span><span style="font-size:13px">${h.h}</span><span style="font-size:11px;color:var(--muted);margin-left:auto">${h.cat}</span></div>`).join(''):'<div class="empty" style="padding:1rem"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="12" x2="20" y2="12"/><circle cx="8" cy="12" r="2" fill="currentColor"/><circle cx="16" cy="12" r="2" fill="currentColor"/><line x1="8" y1="7" x2="8" y2="10"/><line x1="16" y1="7" x2="16" y2="10"/><line x1="8" y1="14" x2="8" y2="17"/><line x1="16" y1="14" x2="16" y2="17"/></svg>Sin registros</div>';
+  }
+}
+
+// DEMO
+function loadDemo(){
+  document.getElementById('p-nom').value='Valentina';
+  document.getElementById('p-ape').value='García';
+  document.getElementById('p-fnac').value='2025-01-10';
+  document.getElementById('p-sexo').value='F';
+  document.getElementById('p-eg').value='32';
+  document.getElementById('p-peso-nac').value='1640';
+  document.getElementById('p-talla-nac').value='41';
+  document.getElementById('p-pc-nac').value='28.5';
+  S.perfil={nom:'Valentina',ape:'García',fnac:'2025-01-10',sexo:'F',eg:'32',wa:''};
+  // También setear los campos del DOM para que v() los lea correctamente
+  ['p-fnac','p-eg','p-sexo'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    if(id==='p-fnac')el.value='2025-01-10';
+    if(id==='p-eg')el.value='32';
+    if(id==='p-sexo')el.value='F';
+  });
+  calcPerfil(); // Sincroniza S.perfil con los valores del DOM
+  S.antro=[
+    {fecha:'2025-02-15',peso:'2100',talla:'44',pc:'30.5',ppeso:'bajP3',ptalla:'bajP3',ppc:'bajP3',edad:'1m · corr: 0m',obs:'Alta de UCIN',ts:'15/02 10:30'},
+    {fecha:'2025-03-15',peso:'3200',talla:'50',pc:'33.0',ppeso:'P3-P10',ptalla:'P3-P10',ppc:'bajP3',edad:'2m · corr: 1m',obs:'',ts:'15/03 09:00'},
+    {fecha:'2025-04-15',peso:'4500',talla:'55',pc:'36.0',ppeso:'P10-P50',ptalla:'P10-P50',ppc:'bajP3',edad:'3m · corr: 2m',obs:'',ts:'15/04 11:00'},
+    {fecha:'2025-06-15',peso:'6200',talla:'61',pc:'38.5',ppeso:'P10-P50',ptalla:'P10-P50',ppc:'bajP3',edad:'5m · corr: 4m',obs:'Excelente',ts:'15/06 08:30'},
+  ];
+  S.hitos=[
+    {h:'Hay intercambio de miradas entre el bebé y el cuidador',cat:'Vínculo',res:'logrado',edad:'Al nacer',obs:'',ts:'20/01'},
+    {h:'Hace sonidos (gorjeo)',cat:'Lenguaje',res:'logrado',edad:'2 meses',obs:'',ts:'15/03'},
+    {h:'Sostiene la cabeza',cat:'Motricidad',res:'seguimiento',edad:'',obs:'Parcial',ts:'15/04'},
+  ];
+  renderAntroTable();renderHitos();
+  // Registrar como paciente 0 en la lista
+  pacientes=[
+    {nom:'Valentina',ape:'García',fnac:'2025-01-10',sexo:'F',wa:'+54 381 555-0101',eg:'32',
+      pesoNac:'1640',tallaNac:'41',pcNac:'28.5',usuario:'familia.garcia',clave:'demo1234',
+      antro:[...S.antro],hitos:[...S.hitos],estudios:[],ic:[],sintomas:[],enfActiva:false},
+    {nom:'Tomás',ape:'López',fnac:'2024-08-20',sexo:'M',wa:'+54 381 555-0202',eg:'',
+      pesoNac:'3400',tallaNac:'50',pcNac:'34',usuario:'familia.lopez',clave:'demo1234',
+      antro:[],hitos:[],estudios:[],ic:[],sintomas:[],enfActiva:false},
+  ];
+  pacienteActual=null; // Médico empieza en la lista, sin paciente seleccionado
+}
+
+// ═══ INIT ═══
 document.addEventListener('DOMContentLoaded',function(){
-  // Firebase inicializado en el script de carga dinámica (ver head)
-  // Auth
   document.getElementById('rb-m').addEventListener('click',function(){
-    document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active'));
-    this.classList.add('active');S.role='medico';
-    document.getElementById('l-email').value='paula.salado';
-    document.getElementById('l-pass').value='971011';
+    document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');
+    S.role='medico';S.user={name:'Dr. García',init:'DR'};document.getElementById('l-email').value='medico@pediapp.com';
   });
   document.getElementById('rb-f').addEventListener('click',function(){
-    document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active'));
-    this.classList.add('active');S.role='familia';
-    document.getElementById('l-email').value='';
-    document.getElementById('l-pass').value='';
+    document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');
+    S.role='familia';S.user={name:'Familia',init:'FF'};document.getElementById('l-email').value='familia@ejemplo.com';
   });
-  // Prellenar credenciales del médico por defecto
-  document.getElementById('l-email').value='paula.salado';
-  document.getElementById('l-pass').value='971011';
   document.getElementById('btn-login').addEventListener('click',doLogin);
-  document.getElementById('l-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
   document.getElementById('btn-logout').addEventListener('click',doLogout);
-  // Sidebar
   document.querySelectorAll('.sb-item[data-sec]').forEach(i=>i.addEventListener('click',function(){nav(this.dataset.sec);}));
-  // Perfil
   document.getElementById('btn-save-perfil').addEventListener('click',savePerfil);
   ['p-fnac','p-sexo'].forEach(id=>document.getElementById(id).addEventListener('change',calcPerfil));
+  ['p-nom','p-ape','p-wa'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('input',()=>{S.perfil[id.replace('p-','').replace('-','')]=el.value;});});
   ['p-eg','p-peso-nac','p-talla-nac','p-pc-nac'].forEach(id=>document.getElementById(id).addEventListener('input',calcPerfil));
-  // Neo
-  document.getElementById('btn-save-neo').addEventListener('click',saveNeo);
-  // Antro
+  document.getElementById('btn-save-neo').addEventListener('click',function(){showOk('neo-ok');});
   document.getElementById('a-fecha').addEventListener('change',autoEdad);
   ['a-peso','a-talla','a-pc'].forEach(id=>document.getElementById(id).addEventListener('input',calcAntroLive));
   document.getElementById('btn-add-antro').addEventListener('click',addAntro);
-  // Graf
-  document.querySelectorAll('#graf-tabs .iodi-tab').forEach(btn=>btn.addEventListener('click',function(){document.querySelectorAll('#graf-tabs .iodi-tab').forEach(b=>b.classList.remove('active'));this.classList.add('active');S.grafMode=this.dataset.graf;renderChart('chart-main');}));
-  // IODI
-  document.querySelectorAll('#iodi-tabs .iodi-tab').forEach(btn=>btn.addEventListener('click',function(){document.querySelectorAll('#iodi-tabs .iodi-tab').forEach(b=>b.classList.remove('active'));this.classList.add('active');selIODI(this.dataset.cat);}));
+  document.querySelectorAll('#graf-tabs .iodi-tab').forEach(btn=>btn.addEventListener('click',function(){
+    document.querySelectorAll('#graf-tabs .iodi-tab').forEach(b=>b.classList.remove('active'));this.classList.add('active');
+    S.grafMode=this.dataset.graf;renderChart('chart-main');
+  }));
+  document.querySelectorAll('#iodi-tabs .iodi-tab').forEach(btn=>btn.addEventListener('click',function(){
+    document.querySelectorAll('#iodi-tabs .iodi-tab').forEach(b=>b.classList.remove('active'));this.classList.add('active');
+    selIODI(this.dataset.cat);
+  }));
   document.getElementById('btn-add-hito').addEventListener('click',addHito);
-  // Estudios
   document.getElementById('est-res').addEventListener('change',function(){document.getElementById('hallazgo-field').style.display=this.value==='patologico'?'':'none';});
   document.getElementById('btn-add-est').addEventListener('click',addEstudio);
-  // IC
   document.getElementById('ic-res').addEventListener('change',function(){document.getElementById('ic-hall-field').style.display=this.value==='patologico'?'':'none';});
   document.getElementById('btn-add-ic').addEventListener('click',addIC);
-  // Enfermedad
   document.getElementById('enf-toggle').addEventListener('change',toggleEnf);
   document.getElementById('btn-guardar-sint').addEventListener('click',guardarSint);
-  // Modal
-  function closeModal2(){document.getElementById('modal').classList.remove('open');}
-  document.getElementById('btn-close-modal').addEventListener('click',closeModal2);
-  document.getElementById('btn-close-modal-2').addEventListener('click',closeModal2);
-  document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal2();});
-  // Nuevo paciente
-  document.getElementById('btn-nuevo-pac-screen').addEventListener('click',abrirModalNuevoPaciente);
-  document.getElementById('pac-search-screen').addEventListener('input',renderPacientesScreen);
-  document.getElementById('btn-close-nuevo-pac').addEventListener('click',()=>document.getElementById('modal-nuevo-pac').classList.remove('open'));
-  document.getElementById('btn-cancel-nuevo-pac').addEventListener('click',()=>document.getElementById('modal-nuevo-pac').classList.remove('open'));
-  document.getElementById('btn-confirm-nuevo-pac').addEventListener('click',confirmarNuevoPaciente);
-  document.getElementById('modal-nuevo-pac').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
-  // Volver
-  document.getElementById('btn-volver').addEventListener('click',()=>{mostrarListaPacientes();cargarListaPacientes().then(renderPacientesScreen);});
-  // Exportar
-  document.getElementById('btn-print').addEventListener('click',()=>{updatePrint();setTimeout(()=>window.print(),300);});
-
-  // Verificar si hay sesión activa
-  waitFirebase(()=>{
-    window._auth.onAuthStateChanged(async(user)=>{
-      if(user&&!S.uid){S.uid=user.uid;S.user=user;const perfDoc=await fbGet(`usuarios/${user.uid}`);S.role=perfDoc?.rol||S.role;iniciarApp();}
-    });
+  function closeModal(){document.getElementById('modal').classList.remove('open');}
+  document.getElementById('btn-close-modal').addEventListener('click',closeModal);
+  document.getElementById('btn-close-modal-2').addEventListener('click',closeModal);
+  // Cerrar al click en el fondo oscuro (overlay)
+  document.getElementById('modal').addEventListener('click',function(e){
+    if(e.target===this)closeModal();
   });
+  // Pacientes
+  const bNP=document.getElementById('btn-nuevo-paciente');
+  if(bNP)bNP.addEventListener('click',abrirModalNuevoPaciente);
+  // Botones pantalla lista
+  const bNPS=document.getElementById('btn-nuevo-pac-screen');
+  if(bNPS)bNPS.addEventListener('click',abrirModalNuevoPaciente);
+  const bPSS=document.getElementById('pac-search-screen');
+  if(bPSS)bPSS.addEventListener('input',renderPacientesScreen);
+  // Modal nuevo paciente
+  const bCNP=document.getElementById('btn-close-nuevo-pac');
+  if(bCNP)bCNP.addEventListener('click',()=>document.getElementById('modal-nuevo-pac').classList.remove('open'));
+  const bCanNP=document.getElementById('btn-cancel-nuevo-pac');
+  if(bCanNP)bCanNP.addEventListener('click',()=>document.getElementById('modal-nuevo-pac').classList.remove('open'));
+  const bConfNP=document.getElementById('btn-confirm-nuevo-pac');
+  if(bConfNP)bConfNP.addEventListener('click',confirmarNuevoPaciente);
+  document.getElementById('modal-nuevo-pac').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
+  // Botón volver
+  const bV=document.getElementById('btn-volver');
+  if(bV)bV.addEventListener('click',function(){guardarPacienteActual();mostrarListaPacientes();});
+  // Familia: ir directo al contenido clínico
+  const bPS2=document.getElementById('pac-search');
+  if(bPS2)bPS2.addEventListener('input',renderPacientes);
+  document.getElementById('btn-print').addEventListener('click',function(){updatePrint();setTimeout(()=>window.print(),300);});
 });
 </script>
 </body>
