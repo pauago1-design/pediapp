@@ -560,7 +560,8 @@ async function doLogin(){
       const perfDoc=await fbGet(`usuarios/${cred.user.uid}`);
       S.uid=cred.user.uid;
       S.user=cred.user;
-      S.role=(perfDoc?.rol)||S.role; // rol guardado en /usuarios/uid
+      // Rol desde Firestore. Si no existe documento → familia por defecto
+      S.role=(perfDoc && perfDoc.rol) ? perfDoc.rol : 'familia';
       showSpinner(false);
       iniciarApp();
     }catch(err){
@@ -599,10 +600,12 @@ async function iniciarApp(){
   const isMed=S.role==='medico';
   document.querySelectorAll('.medico-only').forEach(el=>el.classList.toggle('sec-hidden',!isMed));
   if(!isMed){
-    // FAMILIA: va directo a su paciente, sin lista
+    // FAMILIA: va directo a su paciente, sin lista ni botón volver
     document.getElementById('enf-medico-ctrl').classList.add('sec-hidden');
     document.getElementById('pac-screen').style.display='none';
     document.getElementById('main-clinico').classList.add('visible');
+    document.getElementById('btn-volver').style.display='none'; // familia no vuelve a lista
+    document.getElementById('tb-pac-nombre').classList.remove('visible'); // sin nombre en topbar
     await cargarPacienteFamilia();
   } else {
     // MÉDICO: ver lista de pacientes
@@ -694,9 +697,11 @@ async function abrirPaciente(firestoreId){
   // Mostrar sección clínica
   document.getElementById('pac-screen').style.display='none';
   document.getElementById('main-clinico').classList.add('visible');
-  document.getElementById('btn-volver').classList.add('visible');
-  const nombre=((S.perfil.nom||'')+' '+(S.perfil.ape||'')).trim()||'Paciente';
-  const el=document.getElementById('tb-pac-nombre');el.textContent=nombre;el.classList.add('visible');
+  if(S.role==='medico'){
+    document.getElementById('btn-volver').classList.add('visible');
+    const nombre=((S.perfil.nom||'')+' '+(S.perfil.ape||'')).trim()||'Paciente';
+    const el=document.getElementById('tb-pac-nombre');el.textContent=nombre;el.classList.add('visible');
+  }
   // Renderizar todo
   renderAntroTable();renderHitos();renderEstudios();renderIC();renderSint();
   calcPerfil();
