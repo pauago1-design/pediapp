@@ -1,0 +1,14 @@
+[[redirects]]
+  from = "/medico"
+  to = "/medico.html"
+  status = 200
+
+[[redirects]]
+  from = "/familia"
+  to = "/familia.html"
+  status = 200
+
+[[redirects]]
+  from = "/"
+  to = "/medico.html"
+  status = 200
