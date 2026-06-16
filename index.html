@@ -97,7 +97,6 @@ textarea{resize:vertical;min-height:60px}
 .tb-name{font-size:13px;color:var(--muted);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .btn-sm-out{background:none;border:0.5px solid var(--border);border-radius:var(--r-sm);padding:3px 9px;font-size:12px;cursor:pointer;color:var(--muted)}
 #btn-volver{display:none;align-items:center;gap:5px;padding:4px 12px;border:0.5px solid var(--border);border-radius:var(--r-sm);background:var(--surface);cursor:pointer;font-size:13px;color:var(--muted);font-weight:500}
-#btn-volver.visible{display:flex}
 #tb-pac-nombre{font-size:13px;font-weight:600;color:var(--teal-d);display:none;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #tb-pac-nombre.visible{display:block}
 
@@ -226,7 +225,7 @@ svg.ic-sm{width:13px;height:13px;vertical-align:-2px;color:var(--muted)}
 <div id="app">
   <div class="topbar">
     <div class="tb-logo">🩺 PediApp</div>
-    <button id="btn-volver">◀ Pacientes</button>
+    <button id="btn-volver" style="display:none">◀ Pacientes</button>
     <span id="tb-pac-nombre"></span>
     <span class="sync-badge" id="sync-badge">☁ Guardado</span>
     <div class="tb-right">
@@ -579,7 +578,7 @@ async function doLogout(){
     showSpinner(false);
     document.getElementById('app').style.display='none';
     document.getElementById('auth-screen').style.display='flex';
-    document.getElementById('btn-volver').classList.remove('visible');
+    document.getElementById('btn-volver').style.display='none';
     document.getElementById('tb-pac-nombre').classList.remove('visible');
     if(S.chart){S.chart.destroy();S.chart=null;}
     S.uid=null;S.user=null;pacientes=[];pacienteActual=null;
@@ -633,7 +632,7 @@ function mostrarListaPacientes(){
   document.getElementById('pac-screen').style.display='flex';
   document.getElementById('pac-screen').style.flexDirection='column';
   document.getElementById('main-clinico').classList.remove('visible');
-  document.getElementById('btn-volver').classList.remove('visible');
+  document.getElementById('btn-volver').style.display='none';
   document.getElementById('tb-pac-nombre').classList.remove('visible');
   renderPacientesScreen();
 }
@@ -697,10 +696,15 @@ async function abrirPaciente(firestoreId){
   // Mostrar sección clínica
   document.getElementById('pac-screen').style.display='none';
   document.getElementById('main-clinico').classList.add('visible');
+  // Botón volver: solo para médico
+  const bv=document.getElementById('btn-volver');
   if(S.role==='medico'){
-    document.getElementById('btn-volver').classList.add('visible');
+    bv.style.display='flex';
     const nombre=((S.perfil.nom||'')+' '+(S.perfil.ape||'')).trim()||'Paciente';
     const el=document.getElementById('tb-pac-nombre');el.textContent=nombre;el.classList.add('visible');
+  } else {
+    bv.style.display='none';
+    document.getElementById('tb-pac-nombre').classList.remove('visible');
   }
   // Renderizar todo
   renderAntroTable();renderHitos();renderEstudios();renderIC();renderSint();
