@@ -559,8 +559,9 @@ async function doLogin(){
       const perfDoc=await fbGet(`usuarios/${cred.user.uid}`);
       S.uid=cred.user.uid;
       S.user=cred.user;
-      // Rol desde Firestore. Si no existe documento → familia por defecto
-      S.role=(perfDoc && perfDoc.rol) ? perfDoc.rol : 'familia';
+      // Rol: solo paula.salado es médico (UID fijo)
+      // Cualquier otro usuario es familia
+      S.role=(cred.user.uid==='OcqsokAJBmeGzMePlLVPQovQLaw1') ? 'medico' : 'familia';
       showSpinner(false);
       iniciarApp();
     }catch(err){
